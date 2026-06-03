@@ -1,0 +1,17 @@
+{
+  "name": "Seoul Restaurant Douala",
+  "short_name": "Seoul",
+  "description": "Restaurant coréen à Douala - barbecue, sushi et cuisine traditionnelle.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

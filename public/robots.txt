@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://restaurant-seoul-douala.com/sitemap.xml
