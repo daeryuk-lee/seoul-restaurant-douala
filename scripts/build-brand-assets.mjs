@@ -190,7 +190,7 @@ async function grade(source, target) {
   const vignette = Buffer.from(
     `<svg width="${width}" height="${height}"><defs><radialGradient id="v" cx="50%" cy="46%" r="72%">
       <stop offset="45%" stop-color="#000" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#000" stop-opacity="0.62"/></radialGradient></defs>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.45"/></radialGradient></defs>
       <rect width="100%" height="100%" fill="url(#v)"/></svg>`,
   );
   await sharp(source)
@@ -200,9 +200,9 @@ async function grade(source, target) {
       [0.01, 0.98, 0.01],
       [0, 0.03, 0.85],
     ])
-    // Contraste plus dense, noirs profonds
-    .linear(1.1, -16)
-    .modulate({ brightness: 0.86, saturation: 0.9 })
+    // Contraste un peu plus dense, noirs profonds
+    .linear(1.05, -8)
+    .modulate({ brightness: 0.95, saturation: 0.96 })
     .composite([
       { input: vignette, blend: 'over' },
       { input: await grain(width, height), blend: 'soft-light' },

@@ -598,10 +598,10 @@ const meta: Omit<Category, 'dishes'>[] = [
     },
     image: kimbap,
     imageAlt: {
-      fr: 'Tranches de kimbap sur une planche en bois',
-      en: 'Slices of kimbap on a wooden board',
-      ko: '나무 도마 위의 김밥',
-      zh: '木板上的紫菜包饭',
+      fr: 'Tranches de kimbap aux légumes, œuf et bœuf, sur une ardoise',
+      en: 'Slices of kimbap with vegetables, egg and beef on a slate',
+      ko: '석판 위에 놓인 김밥',
+      zh: '石板上的紫菜包饭',
     },
   },
   {
@@ -615,10 +615,10 @@ const meta: Omit<Category, 'dishes'>[] = [
     },
     image: sushi,
     imageAlt: {
-      fr: 'Assortiment de sushi, sashimi et kimbap sur une ardoise',
-      en: 'Assorted sushi, sashimi and kimbap on a slate',
-      ko: '석판 위의 초밥, 회, 김밥 모듬',
-      zh: '石板上的寿司、刺身和紫菜包饭拼盘',
+      fr: 'Plateau de nigiri au saumon, au poisson blanc et à l’anguille, maki, inari et sashimi',
+      en: 'Platter of salmon, white fish and eel nigiri, maki, inari and sashimi',
+      ko: '연어·흰살생선·장어 초밥, 마끼, 유부초밥, 회 모듬',
+      zh: '三文鱼、白身鱼和鳗鱼握寿司、细卷、豆皮寿司与刺身拼盘',
     },
     raw: true,
   },
@@ -633,10 +633,10 @@ const meta: Omit<Category, 'dishes'>[] = [
     },
     image: grillade,
     imageAlt: {
-      fr: 'Assiette de grillades : côtelettes, poulet, bœuf sauté et kimchi',
-      en: 'Grill platter: chops, chicken, stir-fried beef and kimchi',
-      ko: '갈비, 닭고기, 소고기 볶음, 김치 구이 플레이트',
-      zh: '烧烤拼盘：排骨、鸡肉、炒牛肉和泡菜',
+      fr: 'Porc sauté au kimchi dans un poêlon en fonte, piment et oignon vert',
+      en: 'Kimchi pork stir-fry in a cast-iron pan with chilli and green onion',
+      ko: '무쇠 팬에 담긴 김치제육볶음',
+      zh: '铸铁锅中的泡菜炒猪肉',
     },
   },
   {
@@ -650,10 +650,10 @@ const meta: Omit<Category, 'dishes'>[] = [
     },
     image: friedChicken,
     imageAlt: {
-      fr: 'Poulet frit à la coréenne nappé de sauce et de sésame',
-      en: 'Korean fried chicken glazed with sauce and sesame',
-      ko: '양념과 참깨를 올린 한국식 치킨',
-      zh: '淋上酱汁撒上芝麻的韩式炸鸡',
+      fr: 'Escalopes panées de porc et de poisson, poulet frit et leurs sauces',
+      en: 'Breaded pork and fish cutlets with fried chicken and sauces',
+      ko: '돈까스, 생선까스와 치킨',
+      zh: '炸猪排、炸鱼排和炸鸡配酱汁',
     },
   },
   {
@@ -667,10 +667,10 @@ const meta: Omit<Category, 'dishes'>[] = [
     },
     image: bibimbap,
     imageAlt: {
-      fr: 'Bibimbap en marmite de pierre surmonté d’un œuf',
-      en: 'Stone pot bibimbap topped with an egg',
+      fr: 'Bibimbap en marmite de pierre, jaune d’œuf au centre',
+      en: 'Stone pot bibimbap with an egg yolk in the centre',
       ko: '달걀을 올린 돌솥비빔밥',
-      zh: '铺着煎蛋的石锅拌饭',
+      zh: '中间放着蛋黄的石锅拌饭',
     },
   },
   {
@@ -701,10 +701,10 @@ const meta: Omit<Category, 'dishes'>[] = [
     },
     image: supplements,
     imageAlt: {
-      fr: 'Riz en marmite, tofu, frites et accompagnements',
-      en: 'Pot rice, tofu, fries and side dishes',
-      ko: '솥밥, 두부, 감자튀김과 반찬',
-      zh: '锅饭、豆腐、薯条和小菜',
+      fr: 'Tofu, nouilles, œufs à la vapeur, ramyeon, riz sauté et banchan',
+      en: 'Tofu, noodles, steamed eggs, ramyeon, fried rice and side dishes',
+      ko: '두부, 소면, 계란찜, 라면, 볶음밥과 반찬',
+      zh: '豆腐、面条、蒸蛋、拉面、炒饭和小菜',
     },
   },
 ];
