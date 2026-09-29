@@ -408,8 +408,8 @@ export function privacyPolicy(locale: Locale): LegalDocument {
             id: 'conservation',
             heading: 'Durées de conservation',
             list: [
-              'Demandes de réservation et échanges associés : le temps de traiter la réservation, puis au plus 12 mois.',
-              'Informations d’allergie : supprimées après votre venue.',
+              'Demandes de réservation et échanges associés : ils restent dans la messagerie WhatsApp du restaurant, le temps nécessaire à la gestion de votre réservation et de vos éventuelles visites suivantes. Nous supprimons régulièrement les conversations devenues inutiles et, dans tous les cas, dès que vous nous le demandez.',
+              'Informations d’allergie : conservées uniquement avec votre message de réservation, utilisées seulement pour préparer votre repas, et supprimées sur simple demande.',
               'Journaux techniques de l’hébergeur : selon la politique de Cloudflare, pour une durée limitée.',
             ],
           },
@@ -494,8 +494,8 @@ export function privacyPolicy(locale: Locale): LegalDocument {
             id: 'retention',
             heading: 'Retention periods',
             list: [
-              'Booking requests and related messages: for as long as needed to handle the booking, then no more than 12 months.',
-              'Allergy information: deleted after your visit.',
+              'Booking requests and related messages: they remain in the restaurant’s WhatsApp for as long as needed to manage your booking and any future visits. We regularly delete conversations that are no longer needed and, in any case, as soon as you ask us to.',
+              'Allergy information: kept only with your booking message, used solely to prepare your meal, and deleted on request.',
               'Host’s technical logs: for a limited period under Cloudflare’s policy.',
             ],
           },
@@ -579,8 +579,8 @@ export function privacyPolicy(locale: Locale): LegalDocument {
             id: 'retention',
             heading: '보관 기간',
             list: [
-              '예약 요청 및 관련 메시지: 예약 처리에 필요한 기간 후 최대 12개월.',
-              '알레르기 정보: 방문 후 삭제.',
+              '예약 요청 및 관련 메시지: 예약 관리와 이후 방문 응대에 필요한 기간 동안 레스토랑의 WhatsApp에 보관됩니다. 더 이상 필요하지 않은 대화는 정기적으로 삭제하며, 요청하시면 즉시 삭제합니다.',
+              '알레르기 정보: 예약 메시지와 함께만 보관되고 식사 준비에만 사용되며, 요청 시 삭제합니다.',
               '호스팅 업체의 기술 로그: Cloudflare 방침에 따른 제한된 기간.',
             ],
           },
@@ -663,7 +663,7 @@ export function privacyPolicy(locale: Locale): LegalDocument {
           {
             id: 'retention',
             heading: '保存期限',
-            list: ['预订请求及相关消息：处理预订所需期间，之后最长 12 个月。', '过敏信息：用餐后删除。', '托管服务商的技术日志：依据 Cloudflare 政策保存有限期间。'],
+            list: ['预订请求及相关消息：保存在餐厅的 WhatsApp 中，保存期限以管理您的预订及后续到店所需为限。我们会定期删除不再需要的对话，并在您提出要求时立即删除。', '过敏信息：仅随预订消息保存，只用于准备您的餐食，可应要求删除。', '托管服务商的技术日志：依据 Cloudflare 政策保存有限期间。'],
           },
           {
             id: 'security',

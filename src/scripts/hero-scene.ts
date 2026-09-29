@@ -59,7 +59,9 @@ const NOISE_GLSL = /* glsl */ `
 /** Rend la main au navigateur entre deux étapes d’initialisation (évite les tâches longues). */
 const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
-export async function startHeroScene(canvas: HTMLCanvasElement, onReady: () => void) {
+export async function startHeroScene(canvas: HTMLCanvasElement, onReady: () => void, { still = false } = {}) {
+  // Même règle que le CSS : écran vertical = la scène a sa propre zone sous le texte
+  const portrait = window.matchMedia('(max-aspect-ratio: 23/20)');
   const host = canvas.parentElement!;
   const isSmall = () => canvas.clientWidth < 700;
 
@@ -433,7 +435,7 @@ export async function startHeroScene(canvas: HTMLCanvasElement, onReady: () => v
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    if (camera.aspect > 1.15) {
+    if (!portrait.matches) {
       // Grand écran : le grill occupe la moitié droite, le texte la gauche
       camera.position.set(0, 6.4, 8.6);
       layout.x = Math.min(2.7, 1.2 * camera.aspect);
@@ -442,7 +444,7 @@ export async function startHeroScene(canvas: HTMLCanvasElement, onReady: () => v
     } else {
       // Téléphone : le canevas a sa propre zone sous le texte, le grill y est centré
       camera.position.set(0, 7.4, 8.2);
-      layout.x = 0;
+      layout.x = -0.25; // la salade et les baguettes alourdissent le côté droit : on recentre
       layout.y = -0.3;
       layout.scale = camera.aspect < 0.9 ? 0.72 : 0.86;
     }
@@ -450,7 +452,10 @@ export async function startHeroScene(canvas: HTMLCanvasElement, onReady: () => v
     camera.updateProjectionMatrix();
   }
   resize();
-  new ResizeObserver(resize).observe(canvas);
+  new ResizeObserver(() => {
+    resize();
+    if (still) frame(0);
+  }).observe(canvas);
 
   /* ── Interaction : pointeur et défilement ── */
   const pointer = new Vector2();
@@ -469,13 +474,14 @@ export async function startHeroScene(canvas: HTMLCanvasElement, onReady: () => v
   let ready = false;
 
   function frame(now: number) {
-    const t = (now - start) / 1000;
-    const intro = easeOutCubic(Math.min(1, t / 2.2));
+    // En image fixe : état final de l'introduction, instant figé
+    const t = still ? 4 : (now - start) / 1000;
+    const intro = still ? 1 : easeOutCubic(Math.min(1, t / 2.2));
 
     eased.lerp(pointer, 0.05);
     stage.position.set(layout.x, layout.y - (1 - intro) * 0.8 + scroll * 1.2, 0);
     stage.scale.setScalar(layout.scale * (0.9 + intro * 0.1));
-    stage.rotation.set(eased.y * 0.06, -0.25 + eased.x * 0.25 + scroll * 0.5 + Math.sin(t * 0.15) * 0.08, 0);
+    stage.rotation.set(eased.y * 0.06, (portrait.matches ? -0.1 : -0.25) + eased.x * 0.25 + scroll * 0.5 + Math.sin(t * 0.15) * 0.08, 0);
 
     // La viande « grésille » : infimes frémissements
     meatOnGrill.position.y = Math.sin(t * 40) * 0.0015;
@@ -498,6 +504,11 @@ export async function startHeroScene(canvas: HTMLCanvasElement, onReady: () => v
   // Compilation des shaders sans bloquer la page (KHR_parallel_shader_compile si disponible)
   await renderer.compileAsync(scene, camera);
   await nextFrame();
+
+  if (still) {
+    frame(0);
+    return;
+  }
 
   const sync = () => renderer.setAnimationLoop(visible && !document.hidden ? frame : null);
   new IntersectionObserver(([entry]) => {
