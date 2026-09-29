@@ -1,0 +1,137 @@
+---
+import PageHero from '../components/PageHero.astro';
+import { site } from '../config/site';
+import { legalNotice, privacyPolicy } from '../content/legal';
+import { localeMeta, type Locale } from '../i18n/locales';
+import { fill, useTranslations } from '../i18n/ui';
+import { formatDate } from '../lib/hours';
+
+interface Props {
+  locale: Locale;
+  kind: 'legal' | 'privacy';
+}
+
+const { locale, kind } = Astro.props;
+const t = useTranslations(locale);
+const doc = kind === 'legal' ? legalNotice(locale) : privacyPolicy(locale);
+const title = kind === 'legal' ? t.footer.legal : t.meta.privacy.title.split(' — ')[0]!;
+const updated = fill(t.legal.updated, {
+  date: formatDate(site.legal.lastUpdated, localeMeta[locale].intl, { day: 'numeric', month: 'long', year: 'numeric' }),
+});
+
+// Rend cliquables les adresses web présentes dans le texte
+const linkify = (text: string) =>
+  text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/(https?:\/\/[^\s),;]+[^\s),;.])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+---
+
+<PageHero kicker={site.fullName} title={title}>
+  <p class="legal__updated">{updated}</p>
+</PageHero>
+
+<section class="section theme-char">
+  <div class="container legal">
+    <nav class="legal__toc" aria-labelledby="toc-title">
+      <p id="toc-title" class="kicker">{t.legal.toc}</p>
+      <ol role="list">
+        {
+          doc.sections.map((section) => (
+            <li>
+              <a href={`#${section.id}`}>{section.heading}</a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <article class="prose">
+      {doc.prevails && <p class="legal__prevails">{doc.prevails}</p>}
+      {doc.intro.map((p) => <p class="legal__intro" set:html={linkify(p)} />)}
+      {
+        doc.sections.map((section) => (
+          <section id={section.id} aria-labelledby={`${section.id}-h`}>
+            <h2 id={`${section.id}-h`}>{section.heading}</h2>
+            {section.paragraphs?.map((p) => <p set:html={linkify(p)} />)}
+            {section.list && (
+              <ul>
+                {section.list.map((item) => (
+                  <li set:html={linkify(item)} />
+                ))}
+              </ul>
+            )}
+          </section>
+        ))
+      }
+    </article>
+  </div>
+</section>
+
+<style>
+  .legal__updated {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .legal {
+    display: grid;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .legal {
+      grid-template-columns: 16rem minmax(0, 1fr);
+      gap: clamp(3rem, 6vw, 7rem);
+    }
+
+    .legal__toc {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+    }
+  }
+
+  .legal__toc {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .legal__toc ol {
+    display: grid;
+    gap: 0.1rem;
+    counter-reset: toc;
+  }
+
+  .legal__toc a {
+    display: block;
+    padding-block: 0.4rem;
+    color: var(--muted);
+    font-size: var(--step--1);
+    text-decoration: none;
+  }
+
+  .legal__toc a:hover {
+    color: var(--fg);
+  }
+
+  .legal__intro {
+    font-size: var(--step-1);
+    font-weight: 300;
+  }
+
+  .legal__prevails {
+    padding: 1rem 1.25rem;
+    border-left: 2px solid var(--accent);
+    background: var(--bg-raised);
+    font-size: var(--step--1);
+  }
+
+  .prose section {
+    scroll-margin-top: calc(var(--header-h) + 1.5rem);
+  }
+
+  .prose > section:first-of-type h2 {
+    margin-top: 2.5rem;
+  }
+</style>

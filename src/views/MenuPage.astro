@@ -1,0 +1,290 @@
+---
+import { Image } from 'astro:assets';
+import heroImage from '../assets/images/food/sushi.jpg';
+import DishItem from '../components/DishItem.astro';
+import Icon from '../components/Icon.astro';
+import PageHero from '../components/PageHero.astro';
+import { menu } from '../data/menu';
+import { pathTo, type Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const m = t.menu;
+---
+
+<PageHero image={heroImage} kicker={m.kicker} title={m.title} intro={m.intro} focus="center 40%" />
+
+<nav class="menu-nav theme-ink" aria-label={m.nav} data-menu-nav>
+  <div class="container">
+    <ul role="list">
+      {
+        menu.map((category) => (
+          <li>
+            <a href={`#${category.id}`}>{category.title[locale]}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</nav>
+
+<div class="theme-char menu-body">
+  <aside class="container menu-notes" aria-label={m.legend.title}>
+    <ul class="menu-notes__legend" role="list">
+      <li class="menu-notes__spicy"><Icon name="flame" /> {m.legend.spicy}</li>
+      <li class="menu-notes__veg"><Icon name="leaf" /> {m.legend.veg}</li>
+      <li><span class="menu-notes__new">{m.legend.new}</span></li>
+      <li><strong>{m.currency}</strong> — {m.notes.prices}</li>
+    </ul>
+    <p>{m.notes.allergens}</p>
+  </aside>
+
+  {
+    menu.map((category) => (
+      <section id={category.id} class="menu-section" aria-labelledby={`${category.id}-title`} data-menu-section>
+        <div class="container menu-section__grid">
+          <header class="menu-section__header">
+            <Image
+              src={category.image}
+              alt={category.imageAlt[locale]}
+              widths={[480, 720, 960]}
+              sizes="(min-width: 1024px) 34vw, 100vw"
+              class="menu-section__img"
+            />
+            <div>
+              <h2 id={`${category.id}-title`}>{category.title[locale]}</h2>
+              <p>{category.intro[locale]}</p>
+              {category.raw && (
+                <p class="menu-section__raw">
+                  <Icon name="fish" />
+                  {m.notes.raw}
+                </p>
+              )}
+            </div>
+          </header>
+          <ul class="menu-section__dishes" role="list">
+            {category.dishes.map((dish) => (
+              <DishItem dish={dish} locale={locale} />
+            ))}
+          </ul>
+        </div>
+      </section>
+    ))
+  }
+
+  <div class="container menu-footer">
+    <p>{m.notes.photos}</p>
+    <a class="btn btn--solid" href={pathTo(locale, 'reservation')}>{m.bookCta}</a>
+  </div>
+</div>
+
+<script>
+  import '../scripts/menu-nav';
+</script>
+
+<style>
+  /* Navigation par rubrique, collée sous l'en-tête */
+  .menu-nav {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 40;
+    background: color-mix(in srgb, var(--ink) 94%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .menu-nav ul {
+    display: flex;
+    gap: clamp(1rem, 2vw, 2.25rem);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+    padding-inline-end: 2.5rem;
+  }
+
+  .menu-nav ul::-webkit-scrollbar {
+    display: none;
+  }
+
+  .menu-nav li {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .menu-nav a {
+    position: relative;
+    display: block;
+    padding-block: 1.1rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 0.3s var(--ease-out);
+  }
+
+  :is(:lang(ko), :lang(zh-Hans)) .menu-nav a {
+    letter-spacing: 0.04em;
+  }
+
+  .menu-nav a::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    block-size: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .menu-nav a:hover,
+  .menu-nav a[aria-current] {
+    color: var(--fg);
+  }
+
+  .menu-nav a[aria-current]::after {
+    transform: scaleX(1);
+  }
+
+  .menu-body {
+    background: var(--bg);
+    color: var(--fg);
+    padding-bottom: var(--section);
+  }
+
+  .menu-section {
+    scroll-margin-top: calc(var(--header-h) + 3.5rem);
+  }
+
+  /* Légende */
+  .menu-notes {
+    display: grid;
+    gap: 1rem;
+    padding-block: clamp(2.5rem, 2rem + 2vw, 4rem);
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .menu-notes__legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 2rem;
+  }
+
+  .menu-notes__legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .menu-notes__legend strong {
+    color: var(--fg);
+  }
+
+  .menu-notes__spicy .icon {
+    color: var(--chili);
+  }
+
+  .menu-notes__veg .icon {
+    color: var(--jade);
+  }
+
+  .menu-notes__new {
+    padding: 0.15rem 0.55rem;
+    border: 1px solid currentColor;
+    color: var(--accent);
+    font-size: var(--step--2);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .menu-notes p {
+    max-width: 80ch;
+  }
+
+  /* Rubriques */
+  .menu-section__grid {
+    display: grid;
+    gap: 2rem;
+    padding-block: clamp(3.5rem, 2.5rem + 4vw, 7rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  @media (min-width: 1024px) {
+    .menu-section__grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: clamp(3rem, 5vw, 6rem);
+      align-items: start;
+    }
+
+    .menu-section__header {
+      position: sticky;
+      top: calc(var(--header-h) + 5.5rem);
+    }
+  }
+
+  .menu-section__header {
+    display: grid;
+    gap: 1.75rem;
+  }
+
+  .menu-section__img {
+    inline-size: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  @media (min-width: 1024px) {
+    .menu-section__img {
+      aspect-ratio: 4 / 5;
+      max-block-size: 52vh;
+    }
+  }
+
+  .menu-section__header h2 {
+    font-size: var(--step-4);
+    font-weight: 350;
+    margin-bottom: 0.75rem;
+  }
+
+  .menu-section__header p {
+    color: var(--muted);
+    max-width: 44ch;
+  }
+
+  .menu-section__raw {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    font-size: var(--step--1);
+  }
+
+  .menu-section__raw .icon {
+    margin-top: 0.15rem;
+    color: var(--accent);
+  }
+
+  .menu-section__dishes > :global(li:first-child) {
+    padding-top: 0;
+  }
+
+  .menu-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-top: clamp(3rem, 2rem + 3vw, 5rem);
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+</style>

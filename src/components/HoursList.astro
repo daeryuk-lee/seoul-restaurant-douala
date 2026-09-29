@@ -1,0 +1,154 @@
+---
+import { hours } from '../config/site';
+import { localeMeta, type Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+import { displayWeek, formatDate, formatTime, isOpenWeekday, weekdayName } from '../lib/hours';
+
+interface Props {
+  locale: Locale;
+  compact?: boolean;
+}
+
+const { locale, compact = false } = Astro.props;
+const t = useTranslations(locale);
+const intl = localeMeta[locale].intl;
+
+const range = (start: string, end: string) => `${formatTime(start, locale)} – ${formatTime(end, locale)}`;
+const upcomingClosures = hours.closedDates
+  .filter((d) => d >= new Date().toISOString().slice(0, 10))
+  .map((d) => formatDate(d, intl, { day: 'numeric', month: 'long' }));
+---
+
+<dl class:list={['hours', { 'hours--compact': compact }]} data-hours>
+  {
+    displayWeek.map((weekday) => (
+      <div class="hours__row" data-weekday={weekday}>
+        <dt>
+          {weekdayName(weekday, intl, compact ? 'short' : 'long')}
+          <span class="hours__today" hidden>
+            {t.hours.today}
+          </span>
+        </dt>
+        <dd>
+          {isOpenWeekday(weekday) ? (
+            hours.services.map((s) => (
+              <span class="hours__service">
+                {!compact && <span class="hours__label">{t.services[s.id]}</span>}
+                <span class="hours__time">{range(s.start, s.end)}</span>
+              </span>
+            ))
+          ) : (
+            <span class="hours__closed">{t.hours.closed}</span>
+          )}
+        </dd>
+      </div>
+    ))
+  }
+</dl>
+{upcomingClosures.length > 0 && <p class="hours__exceptional">{t.hours.exceptional.replace('{dates}', upcomingClosures.join(', '))}</p>}
+
+<style>
+  .hours {
+    display: grid;
+  }
+
+  .hours__row {
+    display: grid;
+    grid-template-columns: minmax(7rem, 1fr) auto;
+    gap: 0.25rem 1.5rem;
+    align-items: baseline;
+    padding-block: 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .hours__row:first-child {
+    border-top: 1px solid var(--line);
+  }
+
+  dt {
+    text-transform: capitalize;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+
+  dd {
+    display: grid;
+    justify-items: end;
+    gap: 0.2rem;
+    text-align: right;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hours__service {
+    display: flex;
+    gap: 0.9rem;
+    align-items: baseline;
+  }
+
+  .hours__label {
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+  }
+
+  .hours__closed {
+    font-style: italic;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.2;
+  }
+
+  .hours__today {
+    font-size: var(--step--2);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .hours__row[data-today] dt {
+    color: var(--accent-strong);
+  }
+
+  .hours__row[data-today] .hours__today {
+    display: inline;
+  }
+
+  .hours--compact .hours__row {
+    grid-template-columns: 4.5rem 1fr;
+    padding-block: 0.45rem;
+    font-size: var(--step--1);
+  }
+
+  .hours--compact .hours__row[data-today] .hours__today {
+    display: none;
+  }
+
+  .hours--compact .hours__row[data-today] dd {
+    color: var(--fg);
+  }
+
+  .hours--compact .hours__row:first-child {
+    border-top: 0;
+  }
+
+  .hours--compact .hours__row {
+    border-bottom: 0;
+  }
+
+  .hours--compact dd {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .hours--compact .hours__closed {
+    font-size: var(--step-0);
+  }
+
+  .hours__exceptional {
+    margin-top: 1rem;
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+</style>

@@ -1,0 +1,112 @@
+---
+import { Font } from 'astro:assets';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { site } from '../config/site';
+import { missingLegalFields } from '../content/legal';
+import { defaultLocale, localeMeta, locales, pathTo, type Locale, type PageId } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+import '../styles/global.css';
+
+interface Props {
+  locale: Locale;
+  page: PageId;
+  title: string;
+  description: string;
+  /** Pages sans équivalent traduit (404) : pas de canonique ni d'alternates. */
+  isErrorPage?: boolean;
+  jsonLd?: object[];
+}
+
+const { locale, page, title, description, isErrorPage = false, jsonLd = [] } = Astro.props;
+const t = useTranslations(locale);
+const meta = localeMeta[locale];
+const canonical = new URL(pathTo(locale, page), site.url).href;
+const ogImage = new URL('/og-image.jpg', site.url).href;
+
+const missing = missingLegalFields();
+if (missing.length && import.meta.env.PROD && locale === defaultLocale && page === 'home') {
+  console.warn(`\n⚠  Informations légales à compléter dans src/config/site.ts : ${missing.join(', ')}\n`);
+}
+---
+
+<!doctype html>
+<html lang={meta.htmlLang} dir="ltr" class="theme-ink">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {isErrorPage ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {
+      !isErrorPage &&
+        locales.map((l) => (
+          <link rel="alternate" hreflang={localeMeta[l].hreflang} href={new URL(pathTo(l, page), site.url).href} />
+        ))
+    }
+    {!isErrorPage && <link rel="alternate" hreflang="x-default" href={new URL(pathTo(defaultLocale, page), site.url).href} />}
+
+    <meta name="theme-color" content="#0b0a09" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.fullName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.meta.siteName} />
+    <meta property="og:locale" content={meta.og} />
+    {locales.filter((l) => l !== locale).map((l) => <meta property="og:locale:alternate" content={localeMeta[l].og} />)}
+    <meta property="restaurant:contact_info:phone_number" content={site.phone.e164} />
+    <meta property="place:location:latitude" content={String(site.geo.lat)} />
+    <meta property="place:location:longitude" content={String(site.geo.lng)} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <Font cssVariable="--font-cormorant" preload={[{ style: 'normal', subset: 'latin' }]} />
+    <Font cssVariable="--font-jost" preload={[{ style: 'normal', subset: 'latin' }]} />
+
+    {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t.nav.skip}</a>
+    <Header locale={locale} page={page} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer locale={locale} page={page} />
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: fixed;
+    inset: 0.75rem auto auto 0.75rem;
+    z-index: 100;
+    padding: 0.8rem 1.2rem;
+    background: var(--brass);
+    color: var(--ink);
+    text-decoration: none;
+    transform: translateY(-200%);
+    transition: transform 0.2s;
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+
+  main:focus {
+    outline: none;
+  }
+</style>

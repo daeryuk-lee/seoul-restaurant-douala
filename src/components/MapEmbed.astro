@@ -1,0 +1,101 @@
+---
+/**
+ * Carte Google Maps chargée uniquement à la demande de l'utilisateur :
+ * aucune donnée n'est transmise à Google tant qu'il n'a pas cliqué.
+ */
+import { Image } from 'astro:assets';
+import mapBackdrop from '../assets/images/hero-bg.jpg';
+import { site } from '../config/site';
+import type { Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const hl = locale === 'zh' ? 'zh-CN' : locale;
+const src = `https://maps.google.com/maps?q=${site.geo.lat},${site.geo.lng}&z=17&hl=${hl}&output=embed`;
+---
+
+<div class="map theme-ink" data-map={src} data-title={t.visit.map.iframeTitle}>
+  <Image src={mapBackdrop} alt="" widths={[640, 1280]} sizes="100vw" class="map__backdrop" />
+  <div class="map__consent">
+    <Icon name="map" />
+    <p>{t.visit.map.consent}</p>
+    <button type="button" class="btn btn--solid" data-map-load>{t.visit.map.load}</button>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-map]').forEach((container) => {
+    container.querySelector('[data-map-load]')?.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = container.dataset.map!;
+      iframe.title = container.dataset.title ?? '';
+      iframe.loading = 'lazy';
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.allowFullscreen = true;
+      container.replaceChildren(iframe);
+      container.dataset.loaded = '';
+      iframe.focus();
+    });
+  });
+</script>
+
+<style>
+  .map {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    min-block-size: 22rem;
+    max-block-size: 70vh;
+    inline-size: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    overflow: hidden;
+  }
+
+  .map__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    filter: blur(6px) brightness(0.35) saturate(0.6);
+    transform: scale(1.1);
+  }
+
+  .map__consent {
+    display: grid;
+    justify-items: center;
+    gap: 1.25rem;
+    max-inline-size: 34rem;
+    padding: 2rem var(--gutter);
+    text-align: center;
+  }
+
+  .map__consent .icon {
+    inline-size: 2rem;
+    block-size: 2rem;
+    color: var(--accent);
+  }
+
+  .map__consent p {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .map :global(iframe) {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    border: 0;
+  }
+</style>

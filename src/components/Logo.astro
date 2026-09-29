@@ -1,0 +1,32 @@
+---
+/**
+ * Logo vectoriel (sceau 서울 + « SEOUL »), inséré en ligne : net à toutes les tailles,
+ * sans requête réseau. Généré par scripts/build-brand-assets.mjs.
+ */
+import Horizontal from '../assets/brand/logo-horizontal.svg';
+import Stacked from '../assets/brand/logo-stacked.svg';
+
+interface Props {
+  alt: string;
+  /** Largeur d'affichage maximale en pixels CSS. */
+  width: number;
+  variant?: 'horizontal' | 'stacked';
+  loading?: 'eager' | 'lazy';
+  class?: string;
+}
+
+const { alt, width, variant = 'horizontal', class: className } = Astro.props;
+const Svg = variant === 'stacked' ? Stacked : Horizontal;
+---
+
+<Svg class:list={['logo', className]} aria-label={alt} role="img" style={`--logo-max:${width}px`} />
+
+<style>
+  .logo {
+    display: block;
+    inline-size: 100%;
+    max-inline-size: var(--logo-w, var(--logo-max));
+    block-size: auto;
+    overflow: visible;
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+import heroImage from '../assets/images/hero-bg.jpg';
+import PageHero from '../components/PageHero.astro';
+import Base from '../layouts/Base.astro';
+import { localeMeta, locales, pathTo } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+
+const t = useTranslations('fr');
+---
+
+<Base locale="fr" page="home" title={t.meta.notFound.title} description={t.meta.notFound.description} isErrorPage>
+  <PageHero image={heroImage} kicker={t.notFound.kicker} title={t.notFound.title} intro={t.notFound.body}>
+    <ul class="not-found" role="list">
+      {
+        locales.map((l) => {
+          const tl = useTranslations(l);
+          return (
+            <li lang={localeMeta[l].htmlLang}>
+              <a class={l === 'fr' ? 'btn btn--solid' : 'btn'} href={pathTo(l, 'home')}>
+                {tl.notFound.back}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </PageHero>
+</Base>
+
+<style>
+  .not-found {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+</style>

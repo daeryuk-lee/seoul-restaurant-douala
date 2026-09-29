@@ -1,0 +1,589 @@
+---
+import { booking, site } from '../config/site';
+import { localeMeta, pathTo, type Locale } from '../i18n/locales';
+import { fill, useTranslations } from '../i18n/ui';
+import { whatsappUrl } from '../lib/format';
+import Icon from './Icon.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const r = t.reservation;
+
+const config = {
+  locale,
+  intl: localeMeta[locale].intl,
+  whatsapp: site.whatsapp,
+  maxGuests: booking.maxGuests,
+  strings: {
+    today: r.today,
+    tomorrow: r.tomorrow,
+    closed: r.closed,
+    noSlots: r.noSlots,
+    guestOne: r.guestOne,
+    guestOther: r.guestOther,
+    tableClassic: r.tableClassic,
+    tableBbq: r.tableBbq,
+    services: t.services,
+    errors: r.errors,
+    whatsapp: r.whatsapp,
+  },
+};
+---
+
+<noscript>
+  <style>
+    .booking {
+      display: none !important;
+    }
+  </style>
+  <div class="booking-noscript">
+    <p>{r.noscript}</p>
+    <p>
+      <a class="btn btn--solid" href={`tel:${site.phone.e164}`}>{site.phone.display}</a>
+      <a class="btn" href={whatsappUrl(site.whatsapp)}>{t.contact.whatsapp}</a>
+    </p>
+  </div>
+</noscript>
+
+<form class="booking" data-booking={JSON.stringify(config)} novalidate aria-labelledby="booking-title">
+  <h2 id="booking-title" class="visually-hidden">{r.title}</h2>
+
+  <div class="booking__summary" role="alert" tabindex="-1" hidden>
+    <Icon name="alert" />
+    <p>{r.errorSummary}</p>
+  </div>
+
+  <fieldset class="booking__step" aria-describedby="date-error">
+    <legend><span class="booking__num">01</span>{r.steps.date}</legend>
+    <div class="booking__dates" data-dates role="presentation"></div>
+    <p class="booking__hint booking__hint--scroll">{r.moreDates}</p>
+    <p class="booking__error" id="date-error" data-error="date" hidden></p>
+  </fieldset>
+
+  <fieldset class="booking__step" aria-describedby="time-error time-hint">
+    <legend><span class="booking__num">02</span>{r.steps.time}</legend>
+    <div class="booking__slots" data-slots>
+      <p class="booking__placeholder">{r.chooseDateFirst}</p>
+    </div>
+    <p class="booking__hint" id="time-hint">{r.lastSlot}</p>
+    <p class="booking__error" id="time-error" data-error="time" hidden></p>
+  </fieldset>
+
+  <fieldset class="booking__step">
+    <legend><span class="booking__num">03</span>{r.steps.party}</legend>
+
+    <div class="booking__field">
+      <label for="guests">{r.guests}</label>
+      <div class="stepper">
+        <button type="button" class="stepper__btn" data-step="-1" aria-label={r.decrease} aria-controls="guests">
+          <Icon name="minus" />
+        </button>
+        <input id="guests" name="guests" type="number" inputmode="numeric" min="1" max={booking.maxGuests} value="2" required />
+        <button type="button" class="stepper__btn" data-step="1" aria-label={r.increase} aria-controls="guests">
+          <Icon name="plus" />
+        </button>
+      </div>
+      <p class="booking__hint">
+        {fill(r.groups, { max: booking.maxGuests, phone: site.phone.display })}
+      </p>
+    </div>
+
+    <div class="booking__field" role="radiogroup" aria-labelledby="table-label">
+      <p id="table-label" class="booking__label">{r.table}</p>
+      <div class="tables">
+        <label class="table-card">
+          <input type="radio" name="table" value="classic" checked />
+          <span class="table-card__title">{r.tableClassic}</span>
+          <span class="table-card__desc">{r.tableClassicDesc}</span>
+        </label>
+        <label class="table-card">
+          <input type="radio" name="table" value="bbq" />
+          <span class="table-card__title">{r.tableBbq}</span>
+          <span class="table-card__desc">{r.tableBbqDesc}</span>
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="booking__step">
+    <legend><span class="booking__num">04</span>{r.steps.details}</legend>
+    <div class="booking__row">
+      <div class="booking__field">
+        <label for="name">{r.name}</label>
+        <input id="name" name="name" type="text" autocomplete="name" required maxlength="80" aria-describedby="name-error" />
+        <p class="booking__error" id="name-error" data-error="name" hidden></p>
+      </div>
+      <div class="booking__field">
+        <label for="phone">{r.phone}</label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          autocomplete="tel"
+          inputmode="tel"
+          required
+          maxlength="24"
+          aria-describedby="phone-hint phone-error"
+        />
+        <p class="booking__hint" id="phone-hint">{r.phoneHint}</p>
+        <p class="booking__error" id="phone-error" data-error="phone" hidden></p>
+      </div>
+    </div>
+    <div class="booking__field">
+      <label for="message">{r.message} <span class="booking__optional">({r.optional})</span></label>
+      <textarea id="message" name="message" rows="3" maxlength="500" placeholder={r.messagePlaceholder}></textarea>
+    </div>
+  </fieldset>
+
+  <div class="booking__submit">
+    <button type="submit" class="btn btn--solid">
+      <Icon name="whatsapp" />
+      {r.submit}
+    </button>
+    <p class="booking__privacy">
+      {r.privacy}
+      <a href={pathTo(locale, 'privacy')}>{r.privacyLink}</a>
+    </p>
+  </div>
+
+  <div class="booking__success" role="status" hidden>
+    <Icon name="check" />
+    <div>
+      <p class="booking__success-title">{r.successTitle}</p>
+      <p>{r.successBody}</p>
+      <a class="link-arrow" data-fallback href={whatsappUrl(site.whatsapp)} target="_blank" rel="noopener">
+        {r.successFallback}
+        <Icon name="external" />
+      </a>
+    </div>
+  </div>
+</form>
+
+<script>
+  import '../scripts/reservation';
+</script>
+
+<style>
+  .booking {
+    display: grid;
+    gap: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+
+  .booking-noscript {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .booking-noscript p:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  fieldset {
+    border: 0;
+    padding: 0;
+    min-inline-size: 0;
+  }
+
+  .booking__step {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  legend {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding: 0;
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 350;
+    line-height: 1.1;
+  }
+
+  .booking__num {
+    font-style: italic;
+    font-size: var(--step-1);
+    color: var(--accent);
+  }
+
+  .booking__label,
+  .booking__field > label {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-size: var(--step--1);
+    font-weight: 450;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg);
+  }
+
+  :is(:lang(ko), :lang(zh-Hans)) :is(.booking__label, .booking__field > label) {
+    letter-spacing: 0.02em;
+  }
+
+  .booking__optional {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 350;
+    color: var(--muted);
+  }
+
+  .booking__hint,
+  .booking__placeholder {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .booking__hint--scroll {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .booking__hint--scroll {
+      display: block;
+    }
+  }
+
+  .booking__error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--chili);
+    font-size: var(--step--1);
+    font-weight: 450;
+  }
+
+  .booking__error[hidden] {
+    display: none;
+  }
+
+  .booking__summary,
+  .booking__success {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid currentColor;
+  }
+
+  .booking__summary {
+    color: var(--chili);
+  }
+
+  .booking__summary:focus {
+    outline: none;
+  }
+
+  .booking__summary[hidden],
+  .booking__success[hidden] {
+    display: none;
+  }
+
+  .booking__success {
+    color: var(--jade);
+    background: color-mix(in srgb, var(--jade) 7%, transparent);
+  }
+
+  .booking__success > div {
+    display: grid;
+    gap: 0.4rem;
+    color: var(--fg);
+  }
+
+  .booking__success-title {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.2;
+  }
+
+  .booking__success .link-arrow {
+    justify-self: start;
+    color: var(--jade);
+  }
+
+  /* Dates : bande défilante de pastilles radio */
+  .booking__dates {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 5.25rem;
+    gap: 0.5rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    padding: 0.25rem 0.25rem 1rem;
+    margin-inline: -0.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+
+  .booking__dates :global(.date-chip) {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.1rem;
+    padding: 0.85rem 0.25rem 0.75rem;
+    border: 1px solid var(--line);
+    scroll-snap-align: start;
+    cursor: pointer;
+    text-align: center;
+    transition:
+      border-color 0.25s,
+      background-color 0.25s,
+      color 0.25s;
+  }
+
+  .booking__dates :global(.date-chip__dow),
+  .booking__dates :global(.date-chip__month),
+  .booking__dates :global(.date-chip__note) {
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .booking__dates :global(.date-chip__day) {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.1;
+    font-variant-numeric: lining-nums;
+  }
+
+  .booking__dates :global(.date-chip__note) {
+    min-block-size: 1.2em;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  /* Pastilles radio communes (dates, heures, tables) */
+  .booking :global(.date-chip input),
+  .booking :global(.slot input),
+  .table-card input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: inherit;
+  }
+
+  .booking :global(.date-chip:hover:not(:has(input:disabled))),
+  .booking :global(.slot:hover),
+  .table-card:hover {
+    border-color: var(--fg);
+  }
+
+  .booking :global(.date-chip:has(input:checked)),
+  .booking :global(.slot:has(input:checked)),
+  .table-card:has(input:checked) {
+    background: var(--brass);
+    border-color: var(--brass);
+    color: var(--ink);
+  }
+
+  .booking :global(.date-chip:has(input:checked) span),
+  .table-card:has(input:checked) .table-card__desc {
+    color: color-mix(in srgb, var(--ink) 78%, transparent);
+  }
+
+  .booking :global(.date-chip:has(input:checked) .date-chip__day) {
+    color: var(--ink);
+  }
+
+  .booking :global(.date-chip:has(input:focus-visible)),
+  .booking :global(.slot:has(input:focus-visible)),
+  .table-card:has(input:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .booking :global(.date-chip:has(input:disabled)) {
+    cursor: not-allowed;
+    opacity: 0.45;
+    background: repeating-linear-gradient(-45deg, transparent 0 6px, var(--line) 6px 7px);
+  }
+
+  /* Créneaux */
+  .booking__slots {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .booking__slots :global(.slot-group) {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .booking__slots :global(.slot-group__title) {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: var(--accent);
+  }
+
+  .booking__slots :global(.slot-group__list) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+    gap: 0.5rem;
+  }
+
+  .booking__slots :global(.slot) {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-block-size: 2.9rem;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+    transition:
+      border-color 0.25s,
+      background-color 0.25s,
+      color 0.25s;
+  }
+
+  /* Convives */
+  .stepper {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--line);
+  }
+
+  .stepper__btn {
+    display: grid;
+    place-items: center;
+    inline-size: 3rem;
+    block-size: 3rem;
+    color: var(--fg);
+    transition: background-color 0.25s;
+  }
+
+  .stepper__btn:hover:not(:disabled) {
+    background: var(--bg-raised);
+  }
+
+  .stepper__btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .stepper input {
+    inline-size: 4rem;
+    border: 0;
+    border-inline: 1px solid var(--line);
+    background: transparent;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-variant-numeric: lining-nums;
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
+  .stepper input::-webkit-inner-spin-button,
+  .stepper input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .booking__field {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    justify-items: start;
+  }
+
+  .booking__field .booking__hint {
+    max-width: 60ch;
+  }
+
+  .tables {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: 0.75rem;
+    inline-size: 100%;
+  }
+
+  .table-card {
+    position: relative;
+    display: grid;
+    gap: 0.25rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    transition:
+      border-color 0.25s,
+      background-color 0.25s,
+      color 0.25s;
+  }
+
+  .table-card__title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.2;
+  }
+
+  .table-card__desc {
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  /* Coordonnées */
+  .booking__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: 1.25rem;
+  }
+
+  .booking__field :is(input[type='text'], input[type='tel'], textarea) {
+    inline-size: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: rgb(255 255 255 / 0.03);
+    color: var(--fg);
+    font-size: 1rem;
+    transition: border-color 0.25s;
+  }
+
+  .booking__field :is(input, textarea):focus {
+    border-color: var(--fg);
+    outline: none;
+  }
+
+  .booking__field :is(input, textarea):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .booking__field :is(input, textarea)[aria-invalid='true'] {
+    border-color: var(--chili);
+  }
+
+  textarea {
+    resize: vertical;
+    min-block-size: 6rem;
+  }
+
+  .booking__submit {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .booking__privacy {
+    max-width: 62ch;
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .booking__privacy a {
+    color: var(--fg);
+    margin-inline-start: 0.25rem;
+  }
+</style>

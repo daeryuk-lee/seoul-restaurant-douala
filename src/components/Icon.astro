@@ -1,0 +1,58 @@
+---
+/** Icônes au trait (24×24), décoratives par défaut. */
+const paths = {
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  phone:
+    '<path d="M5 4h3.5l1.5 4.5-2 1.5a11 11 0 0 0 6 6l1.5-2 4.5 1.5V19a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/>',
+  whatsapp:
+    '<path d="M4 20l1.2-3.6A8.5 8.5 0 1 1 8 19.2Z"/><path d="M9 8.5c0 3 2.5 6 5.5 6.5l1.2-1.4-1.9-.9-.8.8a4.5 4.5 0 0 1-2.4-2.4l.8-.8-.9-1.9Z"/>',
+  pin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  mail: '<rect x="3.5" y="5.5" width="17" height="13" rx="1.5"/><path d="m4 7 8 6 8-6"/>',
+  menu: '<path d="M4 8h16M4 16h16"/>',
+  close: '<path d="M6 6l12 12M18 6 6 18"/>',
+  globe:
+    '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.3 3.5 5.2 3.5 8.5s-1 6.2-3.5 8.5c-2.5-2.3-3.5-5.2-3.5-8.5s1-6.2 3.5-8.5Z"/>',
+  flame:
+    '<path d="M12 21c3.6 0 6-2.4 6-5.8 0-3.7-3-6-4.2-9.7-.5 2-1.6 3.4-3.1 4.2C10.2 8 9.5 6.4 9.2 5 7.4 7 6 9.6 6 13.2 6 18.6 8.4 21 12 21Z"/>',
+  leaf: '<path d="M5 19c0-8 5-13.5 14-14 0 9.5-5.5 14-13 14Z"/><path d="M5 19c3-4 6-6.5 9.5-8.5"/>',
+  fish: '<path d="M3 12c3-4.5 7-6 10.5-6C17 6 19.5 9 21 12c-1.5 3-4 6-7.5 6C10 18 6 16.5 3 12Z"/><path d="M3 12 1.5 9M3 12l-1.5 3"/><circle cx="16.5" cy="11" r=".6" fill="currentColor"/>',
+  instagram:
+    '<rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".7" fill="currentColor"/>',
+  facebook: '<path d="M14.5 8.5H16V5h-2a4 4 0 0 0-4 4v2H8v3.5h2V21h3.5v-6.5H16l.5-3.5h-3V9.5a1 1 0 0 1 1-1Z"/>',
+  tripadvisor:
+    '<circle cx="7.5" cy="13.5" r="3.5"/><circle cx="16.5" cy="13.5" r="3.5"/><path d="M2.5 9h3.2A10.5 10.5 0 0 1 12 7a10.5 10.5 0 0 1 6.3 2h3.2l-1.6 2.2M4.1 11.2 2.5 9"/><circle cx="7.5" cy="13.5" r=".8" fill="currentColor"/><circle cx="16.5" cy="13.5" r=".8" fill="currentColor"/><path d="m10.5 17.5 1.5 2 1.5-2"/>',
+  minus: '<path d="M6 12h12"/>',
+  plus: '<path d="M12 6v12M6 12h12"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  alert: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/>',
+  map: '<path d="m3.5 6.5 5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2Z"/><path d="M9 4.5v13M15 6.5v13"/>',
+  external: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+} as const;
+
+export type IconName = keyof typeof paths;
+
+interface Props {
+  name: IconName;
+  /** Libellé accessible ; si absent, l'icône est masquée aux lecteurs d'écran. */
+  label?: string;
+  class?: string;
+}
+
+const { name, label, class: className } = Astro.props;
+---
+
+<svg
+  class:list={['icon', className]}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+  set:html={paths[name]}
+/>

@@ -1,0 +1,119 @@
+---
+import heroImage from '../assets/images/hero-bg.jpg';
+import HoursList from '../components/HoursList.astro';
+import Icon from '../components/Icon.astro';
+import OpenStatus from '../components/OpenStatus.astro';
+import PageHero from '../components/PageHero.astro';
+import ReservationForm from '../components/ReservationForm.astro';
+import { site } from '../config/site';
+import type { Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+import { whatsappUrl } from '../lib/format';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const r = t.reservation;
+---
+
+<PageHero image={heroImage} kicker={r.kicker} title={r.title} intro={r.intro} focus="center 70%" />
+
+<section class="section theme-char">
+  <div class="container reservation">
+    <div class="reservation__form">
+      <ReservationForm locale={locale} />
+    </div>
+
+    <aside class="reservation__aside" aria-labelledby="aside-title">
+      <div class="reservation__card">
+        <h2 id="aside-title">{r.aside.title}</h2>
+        <ul role="list">
+          {r.aside.items.map((item) => <li>{item}</li>)}
+        </ul>
+        <div class="reservation__contact">
+          <a class="btn btn--solid" href={`tel:${site.phone.e164}`}>
+            <Icon name="phone" />
+            {r.aside.call}
+          </a>
+          <a class="link-arrow" href={whatsappUrl(site.whatsapp)} target="_blank" rel="noopener">
+            {t.contact.writeWhatsapp}
+            <Icon name="arrow" />
+          </a>
+        </div>
+      </div>
+
+      <div class="reservation__card">
+        <h2>{t.hours.title}</h2>
+        <OpenStatus locale={locale} />
+        <HoursList locale={locale} />
+      </div>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .reservation {
+    display: grid;
+    gap: clamp(3rem, 2rem + 4vw, 6rem);
+    align-items: start;
+  }
+
+  @media (min-width: 1100px) {
+    .reservation {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    }
+
+    .reservation__aside {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+    }
+  }
+
+  .reservation__aside {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .reservation__card {
+    display: grid;
+    gap: 1.25rem;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    background: var(--bg-raised);
+  }
+
+  .reservation__card h2 {
+    font-size: var(--step-2);
+    font-weight: 400;
+  }
+
+  .reservation__card ul {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .reservation__card li {
+    position: relative;
+    padding-left: 1.5rem;
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .reservation__card li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    inline-size: 0.75rem;
+    block-size: 1px;
+    background: var(--accent);
+  }
+
+  .reservation__contact {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+  }
+</style>

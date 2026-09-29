@@ -1,0 +1,13 @@
+{
+  // Déploiement sur Cloudflare Workers (ressources statiques générées par Astro dans dist/)
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "seoul-restaurant-douala",
+  "compatibility_date": "2026-04-15",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+  },
+  "observability": {
+    "enabled": true,
+  },
+}

@@ -1,0 +1,91 @@
+---
+import { localeMeta, locales, pathTo, type Locale, type PageId } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  page: PageId;
+  variant?: 'inline' | 'full';
+}
+
+const { locale, page, variant = 'inline' } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<nav class:list={['langs', `langs--${variant}`]} aria-label={t.nav.language}>
+  <ul role="list">
+    {
+      locales.map((l) => (
+        <li>
+          <a
+            href={pathTo(l, page)}
+            lang={localeMeta[l].htmlLang}
+            hreflang={localeMeta[l].hreflang}
+            aria-current={l === locale ? 'true' : undefined}
+            data-astro-prefetch="false"
+          >
+            {variant === 'inline' ? (
+              <>
+                <span aria-hidden="true">{localeMeta[l].short}</span>
+                <span class="visually-hidden">{localeMeta[l].label}</span>
+              </>
+            ) : (
+              localeMeta[l].label
+            )}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  ul {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  a {
+    display: inline-grid;
+    place-items: center;
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 0.3s var(--ease-out);
+  }
+
+  a:hover,
+  a[aria-current] {
+    color: var(--fg);
+  }
+
+  .langs--inline ul {
+    gap: 0.1rem;
+  }
+
+  .langs--inline a {
+    min-inline-size: 2.2rem;
+    min-block-size: 2.75rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.08em;
+  }
+
+  .langs--inline a[aria-current] {
+    color: var(--accent-strong);
+  }
+
+  .langs--full ul {
+    gap: 0.5rem 1.5rem;
+  }
+
+  .langs--full a {
+    min-block-size: 2.75rem;
+    font-size: var(--step-0);
+  }
+
+  .langs--full a[aria-current] {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.4em;
+  }
+</style>

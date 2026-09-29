@@ -1,0 +1,198 @@
+---
+import heroImage from '../assets/images/food/grillade.jpg';
+import HoursList from '../components/HoursList.astro';
+import Icon from '../components/Icon.astro';
+import MapEmbed from '../components/MapEmbed.astro';
+import OpenStatus from '../components/OpenStatus.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../config/site';
+import { pathTo, type Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+import { whatsappUrl } from '../lib/format';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const v = t.visit;
+const { lat, lng } = site.geo;
+
+const directions = [
+  { label: v.directions.google, href: `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}` },
+  { label: v.directions.apple, href: `https://maps.apple.com/?daddr=${lat},${lng}&q=${encodeURIComponent(site.fullName)}` },
+  { label: v.directions.waze, href: `https://waze.com/ul?ll=${lat},${lng}&navigate=yes` },
+];
+
+const socials = [
+  { href: site.social.instagram, icon: 'instagram', label: 'Instagram' },
+  { href: site.social.facebook, icon: 'facebook', label: 'Facebook' },
+  { href: site.social.tripadvisor, icon: 'tripadvisor', label: 'Tripadvisor' },
+] as const;
+---
+
+<PageHero image={heroImage} kicker={v.kicker} title={v.title} intro={v.intro} focus="center 30%" />
+
+<section class="section theme-char">
+  <div class="container visit">
+    <section class="visit__block" aria-labelledby="visit-address">
+      <h2 id="visit-address"><Icon name="pin" />{t.contact.address}</h2>
+      <address>
+        <strong>{site.fullName}</strong><br />
+        {site.address.landmark[locale]}<br />
+        {site.address.street}<br />
+        {site.address.city}, {site.address.region}<br />
+        {site.address.country[locale]}
+      </address>
+      <p class="visit__label">{t.contact.directions}</p>
+      <ul role="list" class="visit__links">
+        {
+          directions.map((d) => (
+            <li>
+              <a href={d.href} target="_blank" rel="noopener">
+                {d.label}
+                <Icon name="external" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="visit__block" aria-labelledby="visit-hours">
+      <h2 id="visit-hours"><Icon name="clock" />{t.hours.title}</h2>
+      <OpenStatus locale={locale} />
+      <HoursList locale={locale} />
+    </section>
+
+    <section class="visit__block" aria-labelledby="visit-contact">
+      <h2 id="visit-contact"><Icon name="phone" />{t.contact.phone}</h2>
+      <ul role="list" class="visit__links">
+        <li>
+          <a href={`tel:${site.phone.e164}`}>{site.phone.display}</a>
+        </li>
+        <li>
+          <a href={whatsappUrl(site.whatsapp)} target="_blank" rel="noopener">{t.contact.writeWhatsapp}<Icon name="external" /></a>
+        </li>
+        {
+          site.email && (
+            <li>
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+            </li>
+          )
+        }
+      </ul>
+      <p class="visit__label">{t.contact.follow}</p>
+      <ul role="list" class="visit__links">
+        {
+          socials.map((s) => (
+            <li>
+              <a href={s.href} target="_blank" rel="noopener">
+                <Icon name={s.icon} />
+                {s.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="btn btn--solid visit__book" href={pathTo(locale, 'reservation')}>{t.nav.bookLong}</a>
+    </section>
+  </div>
+</section>
+
+<section class="theme-char visit-map" aria-labelledby="visit-map">
+  <div class="container">
+    <h2 id="visit-map" class="visually-hidden">{v.map.title}</h2>
+    <MapEmbed locale={locale} />
+  </div>
+</section>
+
+<style>
+  .visit {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: clamp(3rem, 2rem + 3vw, 5rem);
+  }
+
+  .visit__block {
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+    justify-items: start;
+  }
+
+  .visit__block h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: var(--step-3);
+    font-weight: 350;
+    padding-bottom: 1rem;
+    inline-size: 100%;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .visit__block h2 .icon {
+    inline-size: 1.4rem;
+    block-size: 1.4rem;
+    color: var(--accent);
+  }
+
+  .visit__block :global(.hours) {
+    inline-size: 100%;
+  }
+
+  address {
+    font-style: normal;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+
+  address strong {
+    color: var(--fg);
+  }
+
+  .visit__label {
+    margin-top: 0.75rem;
+    font-size: var(--step--2);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .visit__links {
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .visit__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-block-size: 2.75rem;
+    text-decoration: none;
+    font-size: var(--step-1);
+    font-family: var(--font-display);
+  }
+
+  .visit__links a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+  }
+
+  .visit__links .icon {
+    inline-size: 1rem;
+    block-size: 1rem;
+    color: var(--muted);
+  }
+
+  .visit__book {
+    margin-top: 1rem;
+  }
+
+  .visit-map {
+    background: var(--bg);
+    padding-bottom: var(--section);
+  }
+</style>

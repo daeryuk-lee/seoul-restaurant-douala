@@ -1,0 +1,56 @@
+---
+/**
+ * Routeur unique : génère chaque page dans chaque langue.
+ *   /            /carte/        /reservation/   /nous-rendre-visite/  …  (français)
+ *   /en/         /en/menu/      /en/reservations/  /en/visit/          …  (anglais, coréen, chinois)
+ */
+import type { GetStaticPaths } from 'astro';
+import Base from '../layouts/Base.astro';
+import { locales, pageIds, routeParam, type Locale, type PageId } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+import { breadcrumbSchema, menuSchema, restaurantSchema } from '../lib/schema';
+import HomePage from '../views/HomePage.astro';
+import LegalPage from '../views/LegalPage.astro';
+import MenuPage from '../views/MenuPage.astro';
+import ReservationPage from '../views/ReservationPage.astro';
+import VisitPage from '../views/VisitPage.astro';
+
+export const getStaticPaths = (() =>
+  locales.flatMap((locale) =>
+    pageIds.map((page) => ({
+      params: { path: routeParam(locale, page) },
+      props: { locale, page },
+    })),
+  )) satisfies GetStaticPaths;
+
+interface Props {
+  locale: Locale;
+  page: PageId;
+}
+
+const { locale, page } = Astro.props;
+const t = useTranslations(locale);
+const meta = t.meta[page];
+
+const breadcrumb = page === 'home' ? [] : [breadcrumbSchema(locale, [
+  { page: 'home', name: t.nav.home },
+  { page, name: meta.title.split(' — ')[0]! },
+])];
+
+const jsonLd = {
+  home: [restaurantSchema(locale, meta.description)],
+  menu: [menuSchema(locale), ...breadcrumb],
+  reservation: breadcrumb,
+  visit: [restaurantSchema(locale, t.meta.home.description), ...breadcrumb],
+  legal: breadcrumb,
+  privacy: breadcrumb,
+}[page];
+---
+
+<Base locale={locale} page={page} title={meta.title} description={meta.description} jsonLd={jsonLd}>
+  {page === 'home' && <HomePage locale={locale} />}
+  {page === 'menu' && <MenuPage locale={locale} />}
+  {page === 'reservation' && <ReservationPage locale={locale} />}
+  {page === 'visit' && <VisitPage locale={locale} />}
+  {(page === 'legal' || page === 'privacy') && <LegalPage locale={locale} kind={page} />}
+</Base>

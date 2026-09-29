@@ -1,0 +1,54 @@
+---
+/**
+ * Indicateur « Ouvert / Fermé » calculé dans le navigateur à l'heure de Douala
+ * (voir src/scripts/site.ts). Masqué tant que le calcul n'a pas eu lieu.
+ */
+import { localeMeta, type Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  class?: string;
+}
+
+const { locale, class: className } = Astro.props;
+const t = useTranslations(locale);
+const strings = { ...t.status, intl: localeMeta[locale].intl, locale };
+---
+
+<p class:list={['open-status', className]} data-open-status={JSON.stringify(strings)} hidden>
+  <span class="open-status__dot" aria-hidden="true"></span>
+  <span class="open-status__text"></span>
+</p>
+
+<style>
+  .open-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .open-status[hidden] {
+    display: none;
+  }
+
+  .open-status__dot {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    background: var(--on-ink-muted);
+  }
+
+  .open-status[data-state='open'] .open-status__dot {
+    background: #7cc49a;
+    box-shadow: 0 0 0 4px rgb(124 196 154 / 0.18);
+  }
+
+  .open-status :global(strong) {
+    color: var(--fg);
+    font-weight: 450;
+  }
+</style>

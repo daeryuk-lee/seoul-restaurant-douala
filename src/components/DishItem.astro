@@ -1,0 +1,229 @@
+---
+import { newDishesUntil } from '../config/site';
+import type { Dish } from '../data/menu';
+import { localeMeta, type Locale } from '../i18n/locales';
+import { fill, useTranslations } from '../i18n/ui';
+import { formatPrice } from '../lib/format';
+import Icon from './Icon.astro';
+
+interface Props {
+  dish: Dish;
+  locale: Locale;
+  headingLevel?: 'h3' | 'h4';
+}
+
+const { dish, locale, headingLevel: Heading = 'h3' } = Astro.props;
+const t = useTranslations(locale);
+
+// Nom secondaire : le hangeul sur les pages non coréennes, le nom français sur la page coréenne
+const secondaryLocale: Locale = locale === 'ko' ? 'fr' : 'ko';
+const secondary = dish.name[secondaryLocale] !== dish.name[locale] ? dish.name[secondaryLocale] : null;
+const desc = dish.desc?.[locale];
+const showDesc = desc && desc !== dish.name[locale] && desc !== secondary;
+
+const variants = typeof dish.price === 'number' ? null : dish.price;
+const labelled = variants?.every((v) => v.label);
+const price = (value: number) => formatPrice(value, locale);
+const isNewActive = dish.isNew && new Date().toISOString().slice(0, 10) <= newDishesUntil;
+---
+
+<li class="dish">
+  <div class="dish__head">
+    <Heading class="dish__name">
+      {dish.name[locale]}
+      {secondary && <span class="dish__native" lang={localeMeta[secondaryLocale].htmlLang}>{secondary}</span>}
+    </Heading>
+    {
+      !labelled && (
+        <p class="dish__price">
+          {variants ? variants.map((v) => price(v.value)).join(' / ') : price(dish.price as number)}
+          <span class="visually-hidden"> {t.menu.currency}</span>
+          {dish.perPlate && <span class="dish__unit">/ {t.menu.perPlate}</span>}
+        </p>
+      )
+    }
+  </div>
+
+  {showDesc && <p class="dish__desc">{desc}</p>}
+
+  {
+    labelled && variants && (
+      <dl class="dish__variants">
+        {variants.map((v) => (
+          <div>
+            <dt>{v.label?.[locale]}</dt>
+            <dd>
+              {price(v.value)}
+              <span class="visually-hidden"> {t.menu.currency}</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    )
+  }
+
+  {
+    (dish.spicy || dish.veg || isNewActive) && (
+      <ul class="dish__tags" role="list">
+        {isNewActive && (
+          <li class="dish__new" data-expires={newDishesUntil}>
+            {t.menu.legend.new}
+          </li>
+        )}
+        {dish.spicy && (
+          <li class="dish__spicy">
+            <span role="img" aria-label={fill(t.menu.spicyLevel, { n: dish.spicy })}>
+              {Array.from({ length: dish.spicy }, () => (
+                <Icon name="flame" />
+              ))}
+            </span>
+          </li>
+        )}
+        {dish.veg && (
+          <li class="dish__veg">
+            <Icon name="leaf" />
+            {dish.veg === true ? t.menu.legend.veg : t.menu.legend.vegOption}
+          </li>
+        )}
+      </ul>
+    )
+  }
+</li>
+
+<style>
+  .dish {
+    display: grid;
+    gap: 0.45rem;
+    padding-block: 1.35rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .dish__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.25rem;
+  }
+
+  .dish__name {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 450;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  .dish__native {
+    display: block;
+    margin-top: 0.25rem;
+    font-family: var(--font-text);
+    font-size: var(--step--1);
+    font-weight: 350;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .dish__price {
+    flex: none;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 500;
+    font-variant-numeric: lining-nums tabular-nums;
+    white-space: nowrap;
+    color: var(--fg);
+  }
+
+  .dish__unit {
+    margin-left: 0.3rem;
+    font-family: var(--font-text);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .dish__desc {
+    max-width: 58ch;
+    color: var(--muted);
+    font-size: var(--step--1);
+    line-height: 1.6;
+  }
+
+  .dish__variants {
+    display: grid;
+    gap: 0.2rem;
+    max-width: 22rem;
+    margin-top: 0.25rem;
+  }
+
+  .dish__variants div {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .dish__variants div::after {
+    content: '';
+    order: 1;
+    flex: 1;
+    border-bottom: 1px dotted var(--line);
+    transform: translateY(-0.3em);
+  }
+
+  .dish__variants dt {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .dish__variants dd {
+    order: 2;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 500;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  .dish__tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1rem;
+    margin-top: 0.15rem;
+    font-size: var(--step--2);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .dish__tags li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .dish__spicy {
+    color: var(--chili);
+  }
+
+  .dish__spicy [role='img'] {
+    display: inline-flex;
+  }
+
+  .dish__spicy :global(.icon) {
+    inline-size: 1rem;
+    block-size: 1rem;
+    margin-inline-end: -0.15rem;
+  }
+
+  .dish__veg {
+    color: var(--jade);
+  }
+
+  .dish__veg :global(.icon) {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
+  .dish__new {
+    padding: 0.2rem 0.6rem;
+    border: 1px solid currentColor;
+    color: var(--accent);
+  }
+</style>

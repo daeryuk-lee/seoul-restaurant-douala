@@ -1,0 +1,368 @@
+---
+import { site } from '../config/site';
+import { pathTo, type Locale, type PageId } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+import { whatsappUrl } from '../lib/format';
+import Icon from './Icon.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import Logo from './Logo.astro';
+
+interface Props {
+  locale: Locale;
+  page: PageId;
+}
+
+const { locale, page } = Astro.props;
+const t = useTranslations(locale);
+
+const primary = [
+  { id: 'menu', label: t.nav.menu },
+  { id: 'visit', label: t.nav.visit },
+] as const;
+
+const mobileLinks = [
+  { id: 'home', label: t.nav.home },
+  { id: 'menu', label: t.nav.menu },
+  { id: 'reservation', label: t.nav.reservation },
+  { id: 'visit', label: t.nav.visit },
+] as const;
+
+const current = (id: PageId) => (id === page ? 'page' : undefined);
+---
+
+<header class="site-header theme-ink">
+  <div class="container site-header__inner">
+    <nav class="site-header__nav" aria-label={t.nav.primary}>
+      <ul role="list">
+        {
+          primary.map((link) => (
+            <li>
+              <a href={pathTo(locale, link.id)} aria-current={current(link.id)}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="site-header__brand" href={pathTo(locale, 'home')} aria-current={current('home')}>
+      <Logo alt={`${t.brand.logoAlt} — ${t.nav.home}`} width={168} loading="eager" />
+    </a>
+
+    <div class="site-header__end">
+      <div class="site-header__langs">
+        <LanguageSwitcher locale={locale} page={page} />
+      </div>
+      <a class="btn btn--solid site-header__book" href={pathTo(locale, 'reservation')} aria-current={current('reservation')}>
+        <span class="site-header__book-short">{t.nav.book}</span>
+        <span class="site-header__book-long">{t.nav.bookLong}</span>
+      </a>
+      <button class="site-header__toggle" type="button" popovertarget="mobile-nav" aria-label={t.nav.open}>
+        <Icon name="menu" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="mobile-nav" class="mobile-nav theme-ink" popover>
+  <div class="mobile-nav__top container">
+    <Logo alt={t.brand.logoAlt} width={136} />
+    <button class="site-header__toggle" type="button" popovertarget="mobile-nav" popovertargetaction="hide" aria-label={t.nav.close}>
+      <Icon name="close" />
+    </button>
+  </div>
+
+  <nav class="mobile-nav__links container" aria-label={t.nav.primary}>
+    <ul role="list">
+      {
+        mobileLinks.map((link, index) => (
+          <li style={`--i:${index}`}>
+            <a href={pathTo(locale, link.id)} aria-current={current(link.id)}>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <div class="mobile-nav__footer container">
+    <LanguageSwitcher locale={locale} page={page} variant="full" />
+    <div class="mobile-nav__contact">
+      <a href={`tel:${site.phone.e164}`}><Icon name="phone" /> {site.phone.display}</a>
+      <a href={whatsappUrl(site.whatsapp)} rel="noopener" target="_blank"><Icon name="whatsapp" /> {t.contact.whatsapp}</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    background: transparent;
+    color: var(--fg);
+    transition:
+      background-color 0.5s var(--ease-out),
+      border-color 0.5s var(--ease-out);
+    border-bottom: 1px solid transparent;
+  }
+
+  :global([data-scrolled]) .site-header {
+    background: color-mix(in srgb, var(--ink) 92%, transparent);
+    border-bottom-color: var(--line-dark);
+    backdrop-filter: blur(14px) saturate(1.2);
+  }
+
+  .site-header::before {
+    /* voile sombre en haut de page pour garder le texte lisible sur les photos */
+    content: '';
+    position: absolute;
+    inset: 0 0 -2.5rem;
+    z-index: -1;
+    background: linear-gradient(to bottom, rgb(18 16 14 / 0.7), transparent);
+    transition: opacity 0.5s var(--ease-out);
+    pointer-events: none;
+  }
+
+  :global([data-scrolled]) .site-header::before {
+    opacity: 0;
+  }
+
+  .site-header__inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-block-size: var(--header-h);
+    gap: 1rem;
+  }
+
+  .site-header__nav ul {
+    display: flex;
+    gap: clamp(1.25rem, 2.5vw, 2.5rem);
+  }
+
+  .site-header__nav a {
+    position: relative;
+    display: inline-block;
+    padding-block: 0.75rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 0.3s var(--ease-out);
+  }
+
+  :is(:lang(ko), :lang(zh-Hans)) .site-header__nav a {
+    letter-spacing: 0.06em;
+  }
+
+  .site-header__nav a::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0.35rem;
+    block-size: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .site-header__nav a:hover,
+  .site-header__nav a[aria-current] {
+    color: var(--fg);
+  }
+
+  .site-header__nav a:hover::after,
+  .site-header__nav a[aria-current]::after {
+    transform: scaleX(1);
+  }
+
+  .site-header__brand {
+    --logo-w: 168px;
+    display: block;
+    inline-size: 168px;
+    padding-block: 0.5rem;
+    transition: inline-size 0.5s var(--ease-out);
+  }
+
+  :global([data-scrolled]) .site-header__brand {
+    inline-size: 148px;
+  }
+
+  .site-header__end {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: clamp(0.75rem, 1.5vw, 1.5rem);
+  }
+
+  .site-header__book {
+    min-block-size: 2.75rem;
+    padding: 0.6rem 1.3rem;
+  }
+
+  .site-header__book-short {
+    display: none;
+  }
+
+  .site-header__toggle {
+    display: none;
+    place-items: center;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    color: var(--fg);
+  }
+
+  .site-header__toggle .icon {
+    inline-size: 1.6rem;
+    block-size: 1.6rem;
+  }
+
+  @media (max-width: 1023px) {
+    .site-header__inner {
+      grid-template-columns: auto 1fr;
+    }
+
+    .site-header__nav,
+    .site-header__langs {
+      display: none;
+    }
+
+    .site-header__brand {
+      --logo-w: 136px;
+      inline-size: 136px;
+      order: -1;
+    }
+
+    :global([data-scrolled]) .site-header__brand {
+      inline-size: 124px;
+    }
+
+    .site-header__toggle {
+      display: inline-grid;
+    }
+
+    .site-header__book-long {
+      display: none;
+    }
+
+    .site-header__book-short {
+      display: inline;
+    }
+  }
+
+  /* Menu mobile plein écran (API Popover) */
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100dvh;
+    max-inline-size: none;
+    max-block-size: none;
+    margin: 0;
+    padding: 0 0 max(1.5rem, env(safe-area-inset-bottom));
+    border: 0;
+    background: var(--bg);
+    color: var(--fg);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex-direction: column;
+    opacity: 0;
+    transition:
+      opacity 0.35s var(--ease-out),
+      display 0.35s allow-discrete,
+      overlay 0.35s allow-discrete;
+  }
+
+  .mobile-nav:popover-open {
+    display: flex;
+    opacity: 1;
+  }
+
+  @starting-style {
+    .mobile-nav:popover-open {
+      opacity: 0;
+    }
+  }
+
+  :global(html:has(.mobile-nav:popover-open)) {
+    overflow: hidden;
+  }
+
+  .mobile-nav__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-block-size: var(--header-h);
+    --logo-w: 124px;
+  }
+
+  .mobile-nav__top :global(.logo) {
+    inline-size: 124px;
+  }
+
+  .mobile-nav__links {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding-block: 2rem;
+  }
+
+  .mobile-nav__links ul {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .mobile-nav__links a {
+    display: block;
+    padding-block: 0.4rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 9vw, 3.2rem);
+    line-height: 1.15;
+    text-decoration: none;
+    color: var(--fg);
+  }
+
+  .mobile-nav__links a[aria-current] {
+    color: var(--accent-strong);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-nav:popover-open li {
+      animation: nav-in 0.6s var(--ease-out) both;
+      animation-delay: calc(0.06s * var(--i) + 0.1s);
+    }
+  }
+
+  @keyframes nav-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+
+  .mobile-nav__footer {
+    display: grid;
+    gap: 1.25rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .mobile-nav__contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.75rem;
+  }
+
+  .mobile-nav__contact a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-block-size: 2.75rem;
+    color: var(--muted);
+    text-decoration: none;
+  }
+</style>
