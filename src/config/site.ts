@@ -38,17 +38,17 @@ export const site = {
   },
 
   /**
-   * Informations légales obligatoires (loi n° 2010/021 régissant le commerce électronique
-   * au Cameroun) : identification complète de l'exploitant du site.
+   * Informations légales. L'éditeur du site est une personne physique (éditeur non
+   * professionnel) qui réalise le site pour le restaurant familial.
    */
   legal: {
-    companyName: '[Raison sociale de l’exploitant]',
-    legalForm: '[Forme juridique — ex. SARL, Établissement individuel]',
-    rccm: '[Numéro RCCM]',
-    niu: '[Numéro d’identifiant unique (NIU)]',
-    publicationDirector: '[Nom et qualité du directeur de la publication]',
+    publisher: 'Daeryuk LEE',
+    publicationDirector: 'Daeryuk LEE',
+    /** Facultatif : immatriculations du restaurant, affichées seulement si renseignées. */
+    restaurantRccm: '',
+    restaurantNiu: '',
     host: {
-      name: 'Cloudflare, Inc. (Cloudflare Pages)',
+      name: 'Cloudflare, Inc.',
       address: '101 Townsend St, San Francisco, CA 94107, États-Unis',
       url: 'https://www.cloudflare.com',
     },

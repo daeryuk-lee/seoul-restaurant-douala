@@ -58,14 +58,14 @@ export function legalNotice(locale: Locale): LegalDocument {
             id: 'editeur',
             heading: 'Éditeur du site',
             paragraphs: [
-              `Le site est édité par ${L.companyName}, ${L.legalForm}, qui exploite le restaurant « ${site.fullName} ».`,
+              `Le site est édité par M. ${L.publisher}, personne physique, à titre non professionnel, pour le restaurant familial «\u00a0${site.fullName}\u00a0».`,
             ],
             list: [
-              `Adresse : ${address('fr')}`,
-              `RCCM : ${L.rccm}`,
-              `NIU : ${L.niu}`,
+              `Adresse de correspondance\u202f: ${address('fr')}`,
               ...contactLine('fr'),
-              `Directeur de la publication : ${L.publicationDirector}`,
+              ...(L.restaurantRccm ? [`RCCM du restaurant\u202f: ${L.restaurantRccm}`] : []),
+              ...(L.restaurantNiu ? [`NIU du restaurant\u202f: ${L.restaurantNiu}`] : []),
+              `Directeur de la publication\u202f: M. ${L.publicationDirector}`,
             ],
           },
           {
@@ -136,13 +136,15 @@ export function legalNotice(locale: Locale): LegalDocument {
           {
             id: 'publisher',
             heading: 'Website publisher',
-            paragraphs: [`This website is published by ${L.companyName}, ${L.legalForm}, which operates the restaurant “${site.fullName}”.`],
+            paragraphs: [
+              `This website is published by Mr ${L.publisher}, a private individual acting in a non-professional capacity, for the family-run restaurant “${site.fullName}”.`,
+            ],
             list: [
-              `Address: ${address('en')}`,
-              `Trade register (RCCM): ${L.rccm}`,
-              `Taxpayer number (NIU): ${L.niu}`,
+              `Correspondence address: ${address('en')}`,
               ...contactLine('en'),
-              `Publication director: ${L.publicationDirector}`,
+              ...(L.restaurantRccm ? [`Restaurant trade register (RCCM): ${L.restaurantRccm}`] : []),
+              ...(L.restaurantNiu ? [`Restaurant taxpayer number (NIU): ${L.restaurantNiu}`] : []),
+              `Publication director: Mr ${L.publicationDirector}`,
             ],
           },
           {
@@ -213,12 +215,14 @@ export function legalNotice(locale: Locale): LegalDocument {
           {
             id: 'publisher',
             heading: '사이트 운영자',
-            paragraphs: [`본 사이트는 레스토랑 「${site.fullName}」을 운영하는 ${L.companyName}(${L.legalForm})이 운영합니다.`],
+            paragraphs: [
+              `본 사이트는 가족이 운영하는 레스토랑 「${site.fullName}」을 위해 개인(비사업자)인 ${L.publisher}가 제작·운영합니다.`,
+            ],
             list: [
-              `주소: ${address('ko')}`,
-              `상업등기번호(RCCM): ${L.rccm}`,
-              `납세자 번호(NIU): ${L.niu}`,
+              `연락 주소: ${address('ko')}`,
               ...contactLine('ko'),
+              ...(L.restaurantRccm ? [`레스토랑 상업등기번호(RCCM): ${L.restaurantRccm}`] : []),
+              ...(L.restaurantNiu ? [`레스토랑 납세자 번호(NIU): ${L.restaurantNiu}`] : []),
               `발행 책임자: ${L.publicationDirector}`,
             ],
           },
@@ -282,13 +286,15 @@ export function legalNotice(locale: Locale): LegalDocument {
           {
             id: 'publisher',
             heading: '网站发布者',
-            paragraphs: [`本网站由经营「${site.fullName}」餐厅的 ${L.companyName}（${L.legalForm}）发布。`],
+            paragraphs: [
+              `本网站由自然人 ${L.publisher} 先生以非职业身份为家庭经营的「${site.fullName}」餐厅发布。`,
+            ],
             list: [
-              `地址：${address('zh')}`,
-              `商业登记号（RCCM）：${L.rccm}`,
-              `纳税人识别号（NIU）：${L.niu}`,
+              `联系地址：${address('zh')}`,
               ...contactLine('zh'),
-              `出版负责人：${L.publicationDirector}`,
+              ...(L.restaurantRccm ? [`餐厅商业登记号（RCCM）：${L.restaurantRccm}`] : []),
+              ...(L.restaurantNiu ? [`餐厅纳税人识别号（NIU）：${L.restaurantNiu}`] : []),
+              `出版负责人：${L.publicationDirector} 先生`,
             ],
           },
           {
@@ -354,7 +360,7 @@ export function privacyPolicy(locale: Locale): LegalDocument {
           {
             id: 'responsable',
             heading: 'Responsable du traitement',
-            paragraphs: [`${L.companyName}, exploitant du restaurant « ${site.fullName} », ${address('fr')}.`],
+            paragraphs: [`Le restaurant «\u00a0${site.fullName}\u00a0», exploitation familiale, ${address('fr')}. Pour toute question relative au site lui-même, vous pouvez aussi joindre son éditeur, M. ${L.publisher}, par l’intermédiaire du restaurant.`],
             list: contactLine('fr'),
           },
           {
@@ -440,7 +446,7 @@ export function privacyPolicy(locale: Locale): LegalDocument {
           {
             id: 'controller',
             heading: 'Data controller',
-            paragraphs: [`${L.companyName}, operator of the restaurant “${site.fullName}”, ${address('en')}.`],
+            paragraphs: [`The family-run restaurant “${site.fullName}”, ${address('en')}. For any question about the website itself, you can also reach its publisher, Mr ${L.publisher}, through the restaurant.`],
             list: contactLine('en'),
           },
           {
@@ -525,7 +531,7 @@ export function privacyPolicy(locale: Locale): LegalDocument {
           {
             id: 'controller',
             heading: '개인정보 처리 책임자',
-            paragraphs: [`레스토랑 「${site.fullName}」 운영자 ${L.companyName}, ${address('ko')}.`],
+            paragraphs: [`가족이 운영하는 레스토랑 「${site.fullName}」, ${address('ko')}. 사이트 자체에 관한 문의는 레스토랑을 통해 사이트 운영자 ${L.publisher}에게도 하실 수 있습니다.`],
             list: contactLine('ko'),
           },
           {
@@ -610,7 +616,7 @@ export function privacyPolicy(locale: Locale): LegalDocument {
           {
             id: 'controller',
             heading: '数据控制者',
-            paragraphs: [`${L.companyName}，「${site.fullName}」餐厅经营者，${address('zh')}。`],
+            paragraphs: [`家庭经营的「${site.fullName}」餐厅，${address('zh')}。有关网站本身的问题，您也可以通过餐厅联系网站发布者 ${L.publisher} 先生。`],
             list: contactLine('zh'),
           },
           {
