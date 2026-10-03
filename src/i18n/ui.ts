@@ -45,7 +45,6 @@ const fr = {
     breadcrumb: 'Fil d’Ariane',
   },
   brand: {
-    kicker: 'Restaurant coréen',
     tagline: 'Une table coréenne familiale au cœur de Douala',
     logoAlt: 'Seoul',
   },
@@ -83,7 +82,7 @@ const fr = {
   home: {
     heroBook: 'Réserver une table',
     heroMenu: 'Découvrir la carte',
-    scroll: 'Défiler',
+    film: { skip: 'Passer la vidéo' },
     intro: {
       kicker: 'La maison',
       title: 'La cuisine coréenne, telle qu’on la partage en famille.',
@@ -310,7 +309,6 @@ const en: UI = {
     breadcrumb: 'Breadcrumb',
   },
   brand: {
-    kicker: 'Korean restaurant',
     tagline: 'A family-run Korean table in the heart of Douala',
     logoAlt: 'Seoul',
   },
@@ -348,7 +346,7 @@ const en: UI = {
   home: {
     heroBook: 'Book a table',
     heroMenu: 'Discover the menu',
-    scroll: 'Scroll',
+    film: { skip: 'Skip the video' },
     intro: {
       kicker: 'About us',
       title: 'Korean cooking, the way a family shares it.',
@@ -557,7 +555,6 @@ const ko: UI = {
     breadcrumb: '현재 위치',
   },
   brand: {
-    kicker: '한식당',
     tagline: '두알라 한가운데의 가족 한식당',
     logoAlt: 'Seoul',
   },
@@ -595,7 +592,7 @@ const ko: UI = {
   home: {
     heroBook: '테이블 예약',
     heroMenu: '메뉴 보기',
-    scroll: '스크롤',
+    film: { skip: '영상 건너뛰기' },
     intro: {
       kicker: 'Seoul 이야기',
       title: '가족과 함께 나누는 한국의 맛.',
@@ -799,7 +796,6 @@ const zh: UI = {
     breadcrumb: '当前位置',
   },
   brand: {
-    kicker: '韩国餐厅',
     tagline: '杜阿拉市中心的家庭式韩国餐桌',
     logoAlt: 'Seoul',
   },
@@ -837,7 +833,7 @@ const zh: UI = {
   home: {
     heroBook: '预订餐桌',
     heroMenu: '查看菜单',
-    scroll: '向下滚动',
+    film: { skip: '跳过视频' },
     intro: {
       kicker: '关于我们',
       title: '像一家人一样分享的韩国料理。',

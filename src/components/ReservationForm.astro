@@ -199,12 +199,11 @@ const config = {
     padding: 0;
     font-family: var(--font-display);
     font-size: var(--step-3);
-    font-weight: 350;
+    font-weight: var(--fw-regular);
     line-height: 1.1;
   }
 
   .booking__num {
-    font-style: italic;
     font-size: var(--step-1);
     color: var(--accent);
   }
@@ -214,7 +213,7 @@ const config = {
     display: block;
     margin-bottom: 0.6rem;
     font-size: var(--step--1);
-    font-weight: 450;
+    font-weight: var(--fw-regular);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--fg);
@@ -227,7 +226,7 @@ const config = {
   .booking__optional {
     text-transform: none;
     letter-spacing: 0;
-    font-weight: 350;
+    font-weight: var(--fw-regular);
     color: var(--muted);
   }
 
@@ -253,7 +252,7 @@ const config = {
     gap: 0.5rem;
     color: var(--chili);
     font-size: var(--step--1);
-    font-weight: 450;
+    font-weight: var(--fw-bold);
   }
 
   .booking__error[hidden] {
@@ -416,7 +415,6 @@ const config = {
 
   .booking__slots :global(.slot-group__title) {
     font-family: var(--font-display);
-    font-style: italic;
     font-size: var(--step-1);
     color: var(--accent);
   }

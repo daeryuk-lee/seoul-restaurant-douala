@@ -1,0 +1,522 @@
+---
+/**
+ * Ouverture de la page d'accueil : un film des plats qui avance au rythme du défilement.
+ *
+ * Les images (public/film/<version>/) sont dessinées dans un <canvas> par src/scripts/home-film.ts.
+ * Sans JavaScript, en mode « animations réduites » ou « économie de données », la section se
+ * réduit à une affiche fixe (première image) avec le logo et les boutons.
+ * Légendes : titres et descriptions des rubriques de la carte (src/data/menu.ts), dans la langue de la page.
+ */
+import film from '../data/film.json';
+import { site } from '../config/site';
+import { menu, type CategoryId } from '../data/menu';
+import { pathTo, type Locale } from '../i18n/locales';
+import { useTranslations } from '../i18n/ui';
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import OpenStatus from './OpenStatus.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const h = t.home;
+
+const base = `/film/${film.version}`;
+/** Rubriques dans l'ordre du film, puis l'appel à réserver final. */
+const chapterIds = [...new Set(film.shots.map((shot) => shot.chapter))];
+const categories = chapterIds.flatMap((id) => menu.filter((category) => category.id === (id as CategoryId)));
+const closing = chapterIds.indexOf('closing');
+const first = film.shots[0];
+/** Longueur totale du film, en hauteurs d'écran. */
+const units = film.shots.reduce((sum, shot) => sum + shot.scroll, 0);
+
+const data = {
+  base,
+  frames: film.frames,
+  shots: film.shots.map((shot, i) => ({
+    range: film.ranges[i],
+    scroll: shot.scroll,
+    chapter: chapterIds.indexOf(shot.chapter),
+    focus: shot.focus,
+  })),
+};
+---
+
+<section class="film" aria-labelledby="hero-title" data-film={JSON.stringify(data)} style={`--units:${units}`}>
+  <div class="film__stage">
+    <picture class="film__poster">
+      <source media="(max-aspect-ratio: 1/1)" type="image/webp" srcset={`${base}/m/000.webp`} width={film.portrait.width} height={film.portrait.height} />
+      <source media="(max-aspect-ratio: 1/1)" srcset={`${base}/m/poster.jpg`} width={film.portrait.width} height={film.portrait.height} />
+      <source type="image/webp" srcset={`${base}/d/000.webp`} />
+      <img
+        src={`${base}/d/poster.jpg`}
+        alt=""
+        width={film.landscape.width}
+        height={film.landscape.height}
+        fetchpriority="high"
+        style={`--focus:${(first?.focus[0] ?? 0.5) * 100}%`}
+      />
+    </picture>
+    <canvas class="film__canvas" aria-hidden="true"></canvas>
+
+    <div class="film__frame">
+      <div class="film__card film__card--intro" data-card="intro">
+        <div class="container film__inner">
+          <p class="kicker">{site.address.street} · {site.address.city}</p>
+          <h1 id="hero-title" class="film__logo">
+            <Logo alt={site.fullName} width={460} variant="full" eager />
+          </h1>
+          <p class="film__tagline">{t.brand.tagline}</p>
+          <div class="film__actions">
+            <a class="btn btn--solid" href={pathTo(locale, 'reservation')}>{h.heroBook}</a>
+            <a class="btn" href={pathTo(locale, 'menu')}>{h.heroMenu}</a>
+          </div>
+          <OpenStatus locale={locale} />
+        </div>
+      </div>
+
+      {
+        categories.map((category) => (
+          <article class="film__card" data-card={chapterIds.indexOf(category.id)} hidden>
+            <div class="container film__inner">
+              {locale !== 'ko' && (
+                <p class="film__hangul" lang="ko">
+                  {category.title.ko}
+                </p>
+              )}
+              <h2>{category.title[locale]}</h2>
+              <p class="film__text">{category.intro[locale]}</p>
+              <a class="link-arrow" href={pathTo(locale, 'menu', category.id)}>
+                {h.signatures.cta}
+                <Icon name="arrow" />
+              </a>
+            </div>
+          </article>
+        ))
+      }
+
+      <article class="film__card" data-card={closing} hidden>
+        <div class="container film__inner">
+          <h2>{h.closing.title}</h2>
+          <p class="film__text">{h.closing.body}</p>
+          <div class="film__actions">
+            <a class="btn btn--solid" href={pathTo(locale, 'reservation')}>{h.heroBook}</a>
+            <a class="btn" href={pathTo(locale, 'menu')}>{h.heroMenu}</a>
+          </div>
+        </div>
+      </article>
+
+      <nav class="film__chapters" aria-label={t.menu.nav} hidden>
+        <ol role="list">
+          {
+            categories.map((category) => (
+              <li>
+                <button type="button" data-goto={chapterIds.indexOf(category.id)}>
+                  {category.title[locale]}
+                </button>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      <a class="film__skip" href="#maison" hidden>
+        {h.film.skip}
+        <Icon name="arrow" />
+      </a>
+      <div class="film__progress" aria-hidden="true" hidden><i></i></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../scripts/home-film';
+</script>
+
+<style>
+  /* ── Affiche fixe (état par défaut, sans JavaScript) ── */
+  .film {
+    position: relative;
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+
+  .film__stage {
+    position: relative;
+    block-size: 100vh;
+    block-size: 100svh;
+    min-block-size: 20rem;
+    overflow: clip;
+    background: var(--ink);
+  }
+
+  .film__poster,
+  .film__poster img,
+  .film__canvas {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .film__poster img {
+    object-fit: cover;
+    object-position: var(--focus, 50%) 50%;
+  }
+
+  .film__canvas {
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-out);
+  }
+
+  /* Voiles de lisibilité : bas et gauche pour les légendes, haut pour l'en-tête */
+  .film__stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(to top, rgb(11 10 9 / 0.88) 0%, rgb(11 10 9 / 0.4) 36%, transparent 62%),
+      linear-gradient(to right, rgb(11 10 9 / 0.5), transparent 58%),
+      linear-gradient(to bottom, rgb(11 10 9 / 0.45), transparent 18%);
+  }
+
+  .film__frame {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 2;
+    block-size: 100vh;
+    block-size: 100svh;
+    min-block-size: 20rem;
+    display: grid;
+    align-items: end;
+    padding-block-end: clamp(3.5rem, 9svh, 6.5rem);
+    padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+    pointer-events: none;
+  }
+
+  .film__card {
+    grid-area: 1 / 1;
+  }
+
+  .film__card[hidden] {
+    display: none;
+  }
+
+  .film__inner {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+  }
+
+  .film__card > .film__inner > * {
+    max-inline-size: 38rem;
+  }
+
+  .film__card--intro,
+  .film__card[data-on] {
+    pointer-events: auto;
+  }
+
+  .film__logo {
+    inline-size: min(460px, 78vw);
+    margin-block: 0.25rem 0.5rem;
+    line-height: 0;
+  }
+
+  .film__tagline,
+  .film__text {
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--on-ink) 88%, transparent);
+    max-inline-size: 34ch;
+  }
+
+  .film__card h2 {
+    font-size: var(--step-5);
+    line-height: 0.98;
+  }
+
+  .film__hangul {
+    font-size: var(--step-0);
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .film__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    margin-block-start: 0.5rem;
+  }
+
+  /* ── Film piloté par le défilement ──
+     La hauteur est réservée dès l'affichage (ancres et retour à la position exacte) quand le script
+     va s'exécuter ; il la retire (data-mode="still") en mode « économie de données ». */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .film:not([data-mode='still']) {
+      block-size: calc(var(--units, 9) * 100vh + 100vh);
+      block-size: calc(var(--units, 9) * 100svh + 100lvh);
+    }
+
+    .film:not([data-mode='still']) .film__stage {
+      position: sticky;
+      inset-block-start: 0;
+      block-size: 100vh;
+      block-size: 100lvh;
+    }
+  }
+
+  .film[data-mode='film'] {
+    block-size: calc(var(--units, 9) * 100vh + 100vh);
+    block-size: calc(var(--units, 9) * 100svh + 100lvh);
+  }
+
+  .film[data-mode='film'] .film__stage {
+    position: sticky;
+    inset-block-start: 0;
+    block-size: 100vh;
+    block-size: 100lvh;
+  }
+
+  .film[data-mode='film'] .film__card:not(.film__card--intro) {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .film[data-ready] .film__canvas {
+    opacity: 1;
+  }
+
+  .film__chapters {
+    position: absolute;
+    inset-inline-end: var(--gutter);
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    pointer-events: auto;
+  }
+
+  .film__chapters ol {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .film__chapters button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    inline-size: 100%;
+    min-block-size: 2rem;
+    font-size: var(--step--2);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--on-ink) 50%, transparent);
+    transition: color 0.4s var(--ease-out);
+  }
+
+  :is(:lang(ko), :lang(zh-Hans)) .film__chapters button {
+    letter-spacing: 0.06em;
+  }
+
+  .film__chapters button::after {
+    content: '';
+    inline-size: 1.1rem;
+    block-size: 1px;
+    background: currentColor;
+    transition:
+      inline-size 0.4s var(--ease-out),
+      background-color 0.4s var(--ease-out);
+  }
+
+  .film__chapters button:hover,
+  .film__chapters button[aria-current] {
+    color: var(--on-ink);
+  }
+
+  .film__chapters button[aria-current]::after {
+    inline-size: 2.4rem;
+    background: var(--brass);
+  }
+
+  .film__skip {
+    position: absolute;
+    inset-inline-end: var(--gutter);
+    inset-block-end: clamp(1.25rem, 3svh, 2rem);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-block-size: 2.75rem;
+    font-size: var(--step--2);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: color-mix(in srgb, var(--on-ink) 70%, transparent);
+    pointer-events: auto;
+  }
+
+  .film__skip:hover {
+    color: var(--on-ink);
+  }
+
+  .film__skip :global(.icon) {
+    transform: rotate(90deg);
+  }
+
+  .film__progress {
+    position: absolute;
+    inset: auto 0 0;
+    block-size: 2px;
+    background: color-mix(in srgb, var(--on-ink) 12%, transparent);
+  }
+
+  .film__progress i {
+    position: absolute;
+    inset: 0;
+    background: var(--brass);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  .film__chapters[hidden],
+  .film__skip[hidden],
+  .film__progress[hidden] {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    /* Voile à droite : repères de chapitres lisibles sur les plats clairs */
+    .film[data-mode='film'] .film__stage::after {
+      background:
+        linear-gradient(to top, rgb(11 10 9 / 0.88) 0%, rgb(11 10 9 / 0.4) 36%, transparent 62%),
+        linear-gradient(to right, rgb(11 10 9 / 0.5), transparent 58%),
+        linear-gradient(to left, rgb(11 10 9 / 0.6), transparent 24%),
+        linear-gradient(to bottom, rgb(11 10 9 / 0.45), transparent 18%);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .film__chapters {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .film__frame {
+      padding-block-end: clamp(4.5rem, 12svh, 6rem);
+    }
+
+    .film__actions .btn {
+      flex: 1 1 100%;
+    }
+
+    .film__skip {
+      inset-inline-end: 50%;
+      transform: translateX(50%);
+    }
+  }
+
+  /* Écrans peu hauts (téléphone à l'horizontale) : légendes compactes */
+  @media (max-height: 560px) {
+    .film__frame {
+      padding-block: var(--header-h) 1.25rem;
+    }
+
+    .film__inner {
+      gap: 0.5rem;
+    }
+
+    .film__logo {
+      inline-size: min(300px, 42vw);
+      margin-block: 0;
+    }
+
+    .film__card h2 {
+      font-size: var(--step-4);
+    }
+
+    .film__tagline,
+    .film__text {
+      font-size: var(--step-0);
+    }
+
+    .film__card--intro .kicker {
+      display: none;
+    }
+
+    .film__actions .btn {
+      flex: 0 1 auto;
+      min-block-size: 2.75rem;
+      padding-block: 0.5rem;
+    }
+  }
+
+  @media (max-height: 400px) {
+    .film__logo {
+      inline-size: min(220px, 38vw);
+    }
+
+    .film__skip {
+      display: none !important;
+    }
+  }
+
+  @media print {
+    .film,
+    .film .film__stage {
+      position: relative;
+      block-size: auto;
+      background: none;
+      color: #000;
+    }
+
+    .film__tagline {
+      color: inherit;
+    }
+
+    .film__poster,
+    .film__canvas,
+    .film__stage::after,
+    .film__card:not(.film__card--intro),
+    .film__chapters,
+    .film__skip,
+    .film__progress {
+      display: none !important;
+    }
+
+    .film__frame {
+      position: static;
+      block-size: auto;
+      padding-block: 1rem;
+    }
+  }
+
+  /* Apparition douce de l'affiche au chargement */
+  @media (prefers-reduced-motion: no-preference) {
+    .film__card--intro .film__inner > * {
+      animation: film-rise 1s var(--ease-out) both;
+    }
+
+    .film__card--intro .film__inner > :nth-child(2) {
+      animation-delay: 0.08s;
+    }
+
+    .film__card--intro .film__inner > :nth-child(3) {
+      animation-delay: 0.16s;
+    }
+
+    .film__card--intro .film__inner > :nth-child(n + 4) {
+      animation-delay: 0.24s;
+    }
+  }
+
+  @keyframes film-rise {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
+</style>

@@ -1,0 +1,100 @@
+{
+  "$comment": "Film défilant de la page d'accueil. Les plans (« shots ») sont repérés en numéros d'image de la vidéo source (24 images/s). « scroll » : longueur de défilement du plan, en hauteurs d'écran. « chapter » : rubrique de la carte légendée pendant le plan (identifiants de src/data/menu.ts), « closing » pour l'appel à réserver final. « focus » : centre horizontal du recadrage portrait au début puis à la fin du plan (0 = bord gauche, 1 = bord droit). Après modification, relancer : npm run film -- chemin/vers/video.mp4 (les champs « frames » et « ranges » sont recalculés).",
+  "version": "v1",
+  "step": 2,
+  "landscape": {
+    "width": 1280,
+    "height": 720,
+    "quality": 64
+  },
+  "portrait": {
+    "width": 540,
+    "height": 720,
+    "quality": 64
+  },
+  "shots": [
+    {
+      "from": 0,
+      "to": 26,
+      "chapter": "barbecue",
+      "scroll": 1.7,
+      "focus": [0.48, 0.47]
+    },
+    {
+      "from": 27,
+      "to": 51,
+      "chapter": "entree",
+      "scroll": 0.9,
+      "focus": [0.62, 0.55]
+    },
+    {
+      "from": 52,
+      "to": 77,
+      "chapter": "specialite",
+      "scroll": 0.9,
+      "focus": [0.42, 0.45]
+    },
+    {
+      "from": 79,
+      "to": 106,
+      "chapter": "grillade_saute",
+      "scroll": 0.9,
+      "focus": [0.5, 0.5]
+    },
+    {
+      "from": 107,
+      "to": 130,
+      "chapter": "friture",
+      "scroll": 0.9,
+      "focus": [0.5, 0.5]
+    },
+    {
+      "from": 131,
+      "to": 147,
+      "chapter": "riz_ragout",
+      "scroll": 0.7,
+      "focus": [0.5, 0.5]
+    },
+    {
+      "from": 148,
+      "to": 157,
+      "chapter": "riz_ragout",
+      "scroll": 0.45,
+      "focus": [0.46, 0.47]
+    },
+    {
+      "from": 158,
+      "to": 181,
+      "chapter": "pate_nouilles",
+      "scroll": 0.9,
+      "focus": [0.5, 0.5]
+    },
+    {
+      "from": 182,
+      "to": 210,
+      "chapter": "supplements",
+      "scroll": 0.9,
+      "focus": [0.48, 0.49]
+    },
+    {
+      "from": 212,
+      "to": 239,
+      "chapter": "closing",
+      "scroll": 1.1,
+      "focus": [0.5, 0.5]
+    }
+  ],
+  "frames": 127,
+  "ranges": [
+    [0, 13],
+    [14, 26],
+    [27, 40],
+    [41, 55],
+    [56, 68],
+    [69, 77],
+    [78, 83],
+    [84, 96],
+    [97, 111],
+    [112, 126]
+  ]
+}

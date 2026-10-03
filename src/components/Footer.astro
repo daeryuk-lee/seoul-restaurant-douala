@@ -28,7 +28,7 @@ const socials = [
   <div class="container">
     <div class="site-footer__top">
       <div class="site-footer__brand">
-        <Logo alt={t.brand.logoAlt} width={220} />
+        <Logo alt={site.fullName} width={240} variant="full" />
         <p>{t.brand.tagline}</p>
       </div>
       <a class="btn btn--solid" href={pathTo(locale, 'reservation')}>{t.nav.bookLong}</a>
@@ -123,14 +123,13 @@ const socials = [
   }
 
   .site-footer__brand {
-    --logo-w: 220px;
+    --logo-w: 240px;
     display: grid;
     gap: 1rem;
   }
 
   .site-footer__brand p {
     font-family: var(--font-display);
-    font-style: italic;
     font-size: var(--step-1);
     color: var(--muted);
   }
@@ -146,7 +145,7 @@ const socials = [
     margin-bottom: 1.25rem;
     font-family: var(--font-text);
     font-size: var(--step--2);
-    font-weight: 450;
+    font-weight: var(--fw-regular);
     letter-spacing: 0.24em;
     text-transform: uppercase;
     color: var(--accent);

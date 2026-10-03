@@ -1,25 +1,37 @@
 ---
 /**
- * Logo vectoriel (sceau 서울 + « SEOUL »), inséré en ligne : net à toutes les tailles,
- * sans requête réseau. Généré par scripts/build-brand-assets.mjs.
+ * Logo du restaurant : « Seoul » au pinceau, avec ou sans « Restaurant Coréen ».
+ * Image SVG générée par scripts/build-brand-assets.mjs à partir du vrai logo : nette à toutes
+ * les tailles, téléchargée une seule fois puis gardée en cache.
  */
-import Horizontal from '../assets/brand/logo-horizontal.svg';
-import Stacked from '../assets/brand/logo-stacked.svg';
+import full from '../assets/brand/logo.svg';
+import word from '../assets/brand/logo-word.svg';
 
 interface Props {
   alt: string;
   /** Largeur d'affichage maximale en pixels CSS. */
   width: number;
-  variant?: 'horizontal' | 'stacked';
-  loading?: 'eager' | 'lazy';
+  /** « word » : « Seoul » seul (en-tête) ; « full » : avec « Restaurant Coréen » dessous. */
+  variant?: 'word' | 'full';
+  /** Logo visible dès l'ouverture de la page : chargement prioritaire. */
+  eager?: boolean;
   class?: string;
 }
 
-const { alt, width, variant = 'horizontal', class: className } = Astro.props;
-const Svg = variant === 'stacked' ? Stacked : Horizontal;
+const { alt, width, variant = 'word', eager = false, class: className } = Astro.props;
+const svg = variant === 'full' ? full : word;
 ---
 
-<Svg class:list={['logo', className]} aria-label={alt} role="img" style={`--logo-max:${width}px`} />
+<img
+  class:list={['logo', className]}
+  src={svg.src}
+  width={svg.width}
+  height={svg.height}
+  alt={alt}
+  loading={eager ? 'eager' : 'lazy'}
+  decoding="async"
+  style={`--logo-max:${width}px`}
+/>
 
 <style>
   .logo {
@@ -27,6 +39,5 @@ const Svg = variant === 'stacked' ? Stacked : Horizontal;
     inline-size: 100%;
     max-inline-size: var(--logo-w, var(--logo-max));
     block-size: auto;
-    overflow: visible;
   }
 </style>

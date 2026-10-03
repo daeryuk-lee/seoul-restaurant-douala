@@ -47,7 +47,7 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     </nav>
 
     <a class="site-header__brand" href={pathTo(locale, 'home')} aria-current={current('home')}>
-      <Logo alt={`${t.brand.logoAlt} — ${t.nav.home}`} width={168} loading="eager" />
+      <Logo alt={`${t.brand.logoAlt} — ${t.nav.home}`} width={150} eager />
     </a>
 
     <div class="site-header__end">
@@ -67,7 +67,7 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
 
 <div id="mobile-nav" class="mobile-nav theme-ink" popover>
   <div class="mobile-nav__top container">
-    <Logo alt={t.brand.logoAlt} width={136} />
+    <Logo alt={t.brand.logoAlt} width={124} eager />
     <button class="site-header__toggle" type="button" popovertarget="mobile-nav" popovertargetaction="hide" aria-label={t.nav.close}>
       <Icon name="close" />
     </button>
@@ -109,7 +109,7 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     border-bottom: 1px solid transparent;
   }
 
-  :global([data-scrolled]) .site-header {
+  :global([data-scrolled]:not([data-film-active])) .site-header {
     background: color-mix(in srgb, var(--ink) 92%, transparent);
     border-bottom-color: var(--line-dark);
     backdrop-filter: blur(14px) saturate(1.2);
@@ -126,7 +126,7 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     pointer-events: none;
   }
 
-  :global([data-scrolled]) .site-header::before {
+  :global([data-scrolled]:not([data-film-active])) .site-header::before {
     opacity: 0;
   }
 
@@ -181,15 +181,15 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
   }
 
   .site-header__brand {
-    --logo-w: 168px;
+    --logo-w: 150px;
     display: block;
-    inline-size: 168px;
+    inline-size: 150px;
     padding-block: 0.5rem;
     transition: inline-size 0.5s var(--ease-out);
   }
 
-  :global([data-scrolled]) .site-header__brand {
-    inline-size: 148px;
+  :global([data-scrolled]:not([data-film-active])) .site-header__brand {
+    inline-size: 132px;
   }
 
   .site-header__end {
@@ -232,13 +232,13 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     }
 
     .site-header__brand {
-      --logo-w: 136px;
-      inline-size: 136px;
+      --logo-w: 124px;
+      inline-size: 124px;
       order: -1;
     }
 
-    :global([data-scrolled]) .site-header__brand {
-      inline-size: 124px;
+    :global([data-scrolled]:not([data-film-active])) .site-header__brand {
+      inline-size: 112px;
     }
 
     .site-header__toggle {
@@ -297,11 +297,11 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     align-items: center;
     justify-content: space-between;
     min-block-size: var(--header-h);
-    --logo-w: 124px;
+    --logo-w: 112px;
   }
 
   .mobile-nav__top :global(.logo) {
-    inline-size: 124px;
+    inline-size: 112px;
   }
 
   .mobile-nav__links {
@@ -320,7 +320,7 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     display: block;
     padding-block: 0.4rem;
     font-family: var(--font-display);
-    font-size: clamp(2.2rem, 9vw, 3.2rem);
+    font-size: clamp(1.9rem, 7.5vw, 2.7rem);
     line-height: 1.15;
     text-decoration: none;
     color: var(--fg);

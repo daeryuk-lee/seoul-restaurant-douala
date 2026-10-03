@@ -1,5 +1,8 @@
 // @ts-check
-import { defineConfig, fontProviders } from 'astro/config';
+import { createRequire } from 'node:module';
+import { defineConfig } from 'astro/config';
+
+const require = createRequire(import.meta.url);
 
 const LATIN = [
   'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD',
@@ -9,16 +12,40 @@ const LATIN_EXT = [
 ];
 
 /**
- * Polices auto-hébergées depuis node_modules (aucune requête vers Google : conforme RGPD
- * et loi camerounaise n° 2024/017). Astro génère aussi des polices de repli calibrées
- * pour éviter tout décalage de mise en page au chargement.
- * @param {string} pkg @param {string} file @param {Array<'normal'|'italic'>} styles
+ * Police du logo du restaurant : Calibri (« Restaurant Coréen »).
+ * Calibri n'est pas libre de diffusion : elle est utilisée si l'ordinateur du visiteur l'a déjà
+ * (Windows, Office), sinon Carlito prend le relais — même dessin et mêmes largeurs de caractères,
+ * licence OFL, auto-hébergée depuis node_modules (aucune requête vers Google : conforme RGPD et
+ * loi camerounaise n° 2024/017). Astro génère aussi une police de repli calibrée pour éviter tout
+ * décalage de mise en page au chargement.
+ *
+ * Le fournisseur « local » d'Astro ne sait pas écrire local('Calibri') : ce petit fournisseur le fait.
  */
-const variants = (pkg, file, styles) =>
-  styles.flatMap((style) => [
-    { src: [`${pkg}/files/${file}-latin-wght-${style}.woff2`], style, unicodeRange: LATIN },
-    { src: [`${pkg}/files/${file}-latin-ext-wght-${style}.woff2`], style, unicodeRange: LATIN_EXT },
-  ]);
+const SUBSETS = { latin: LATIN, 'latin-ext': LATIN_EXT };
+const FACES = [
+  { weight: 400, style: 'normal', local: ['Calibri', 'Carlito Regular', 'Carlito-Regular'] },
+  { weight: 700, style: 'normal', local: ['Calibri Bold', 'Calibri-Bold', 'Carlito Bold', 'Carlito-Bold'] },
+];
+
+/** @type {import('astro').FontProvider} */
+const calibriFirst = {
+  name: 'calibri-puis-carlito',
+  resolveFont: () => ({
+    fonts: FACES.flatMap(({ weight, style, local }) =>
+      Object.entries(SUBSETS).map(([subset, unicodeRange]) => ({
+        weight,
+        style,
+        unicodeRange,
+        // Indispensable pour que le préchargement filtre par sous-ensemble
+        meta: { subset },
+        src: [
+          ...local.map((name) => ({ name })),
+          { url: require.resolve(`@fontsource/carlito/files/carlito-${subset}-${weight}-${style}.woff2`), format: 'woff2' },
+        ],
+      })),
+    ),
+  }),
+};
 
 export default defineConfig({
   site: 'https://restaurant-seoul-douala.com',
@@ -35,26 +62,10 @@ export default defineConfig({
   },
   fonts: [
     {
-      provider: fontProviders.local(),
-      name: 'Cormorant Garamond',
-      cssVariable: '--font-cormorant',
-      fallbacks: ['Georgia', 'serif'],
-      weights: ['300 700'],
-      options: {
-        // @ts-ignore — tuple non vide garanti par la construction
-        variants: variants('@fontsource-variable/cormorant-garamond', 'cormorant-garamond', ['normal', 'italic']),
-      },
-    },
-    {
-      provider: fontProviders.local(),
-      name: 'Jost',
-      cssVariable: '--font-jost',
+      provider: calibriFirst,
+      name: 'Carlito',
+      cssVariable: '--font-carlito',
       fallbacks: ['Arial', 'sans-serif'],
-      weights: ['300 600'],
-      options: {
-        // @ts-ignore — tuple non vide garanti par la construction
-        variants: variants('@fontsource-variable/jost', 'jost', ['normal']),
-      },
     },
   ],
   vite: {
