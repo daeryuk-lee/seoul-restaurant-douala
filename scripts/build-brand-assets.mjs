@@ -12,7 +12,9 @@
  *
  * Usage : npm run brand              (tout)
  *         npm run brand -- --sans-photos   (logo, icônes et image de partage seulement)
- * Pour remplacer une photo : déposer la nouvelle image dans _originals/ sous le même nom, puis relancer.
+ *         npm run brand -- sushi.jpg       (logo, icônes, image de partage et cette seule photo)
+ * Pour remplacer une photo : déposer la nouvelle image dans _originals/ sous le même nom, puis relancer
+ * en nommant la photo (le grain est aléatoire : les autres photos resteraient sinon modifiées).
  */
 import { readFileSync } from 'node:fs';
 import { mkdir, readdir, writeFile } from 'node:fs/promises';
@@ -30,6 +32,8 @@ const COLORS = {
 const STRETCH = 1;
 
 const withPhotos = !process.argv.includes('--sans-photos');
+/** Photos à étalonner (noms de fichier) ; aucune = toutes. */
+const onlyPhotos = process.argv.slice(2).filter((arg) => !arg.startsWith('--'));
 
 await mkdir('src/assets/brand', { recursive: true });
 await mkdir('public/icons', { recursive: true });
@@ -268,6 +272,7 @@ async function grade(source, target) {
 
 if (withPhotos) {
   for (const source of await listImages(ORIGINALS)) {
+    if (onlyPhotos.length && !onlyPhotos.some((name) => source.endsWith(name))) continue;
     const target = join('src/assets/images', relative(ORIGINALS, source));
     await mkdir(dirname(target), { recursive: true });
     await grade(source, target);
