@@ -18,7 +18,9 @@ Deux possibilités. La première reprend exactement le déroulé actuel du site.
 
 ### Option A — un plan par rubrique de la carte (recommandé)
 
-Huit plans courts, **3 à 4 secondes chacun**, en avançant très lentement vers le plat (environ 30 cm en tout). Même hauteur de caméra et même table pour tous les plans.
+Neuf plans courts, **2 secondes chacun**, en avançant très lentement vers le plat (environ 20 cm en tout). Même hauteur de caméra et même table pour tous les plans. Filmer plus long ne sert à rien : le site ne garde qu'une douzaine d'images par plan, et des plans plus longs alourdiraient le film pour les visiteurs sur téléphone.
+
+Garder le plat **au centre de l'image** : sur téléphone, seule une bande verticale centrale (environ 40 % de la largeur) est affichée.
 
 | # | Rubrique | Plat à filmer |
 |---|---|---|
@@ -29,11 +31,12 @@ Huit plans courts, **3 à 4 secondes chacun**, en avançant très lentement vers
 | 5 | Fritures | Donkkasseu ou poulet frit, avec ses sauces |
 | 6 | Riz & ragoûts | Bibimbap en marmite de pierre, puis un ragoût fumant |
 | 7 | Nouilles | Jjamppong (fruits de mer, bouillon rouge) |
-| 8 | Suppléments | Vue d'ensemble d'une table garnie : riz, œufs à la vapeur, banchan |
+| 8 | Suppléments | Riz, œufs à la vapeur, banchan |
+| 9 | Réserver (fin du film) | Vue d'ensemble d'une table entièrement garnie, en reculant légèrement |
 
 ### Option B — un plan-séquence continu
 
-Une seule prise de **10 à 15 secondes, sans coupe** : de l'entrée, avancer au pas (moitié de la vitesse normale, genoux fléchis) entre les tables, jusqu'à une table barbecue garnie, puis finir au-dessus du grill. C'est ce qui donne l'effet de « traversée » le plus immersif.
+Une seule prise de **10 à 15 secondes, sans coupe** : de l'entrée, avancer au pas (moitié de la vitesse normale, genoux fléchis) entre les tables, jusqu'à une table barbecue garnie, puis finir au-dessus du grill. C'est ce qui donne l'effet de « traversée » le plus immersif. Le site en garde environ 120 images (réglage `step` ≈ 3 à 30 images/s).
 
 ### Précautions
 
@@ -43,8 +46,8 @@ Une seule prise de **10 à 15 secondes, sans coupe** : de l'entrée, avancer au 
 
 ### Mettre la vidéo en ligne
 
-1. Mettre à jour les plans dans `src/data/film.json` (numéros de la première et de la dernière image de chaque plan, rubrique, longueur de défilement) et changer `"version"` (`"v2"`).
-2. Lancer `npm run film -- chemin/vers/video.mp4` (nécessite ffmpeg) : les images sont générées dans `public/film/v2/`.
+1. Mettre à jour les plans dans `src/data/film.json` : numéros de la première et de la dernière image de chaque plan (`from`, `to`), rubrique (`chapter`, `closing` pour le dernier plan), longueur de défilement (`scroll`), centre du recadrage portrait (`focus`) et `step` (une image gardée sur `step` : viser 12 à 15 images par plan, soit `step` ≈ 4 pour 2 secondes à 30 images/s). Changer `"version"` (`"v2"`).
+2. Lancer `npm run film -- chemin/vers/video.mp4` (nécessite ffmpeg) : les images sont générées dans `public/film/v2/`. Le plus simple est de m'envoyer la vidéo : je m'occupe de ces réglages.
 3. Vérifier avec `npm run build` puis `npm run preview`.
 
 ## 2. Les photos des plats
@@ -66,6 +69,7 @@ Une photo par fichier existant de `src/assets/images/_originals/` :
 - **Format paysage**, photo standard du téléphone (au moins 2400 pixels de large). Cadrer un peu large : le site recadre.
 - **Une lumière chaude venant du côté**, fond sombre (bois foncé, ardoise), assiette essuyée sur les bords.
 - Déposer chaque photo dans `src/assets/images/_originals/` **sous le même nom de fichier**, puis lancer `npm run brand` (étalonnage automatique) et `npm run build`.
+- Mettre à jour la description de la photo (`imageAlt` de la rubrique correspondante dans `src/data/menu.ts`, dans les 4 langues) pour qu'elle décrive bien la nouvelle image.
 
 ## 3. Quand toutes les images sont réelles
 

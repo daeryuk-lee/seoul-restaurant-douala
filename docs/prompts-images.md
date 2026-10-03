@@ -1,6 +1,6 @@
 # Régénérer les photos du site
 
-Toutes les photos actuelles ont été générées par IA. Ce guide permet de les recréer dans une direction artistique cohérente avec le design (noir laqué, or, sceau vermillon), avec n'importe quel générateur d'images (Midjourney, DALL·E, Imagen, Firefly…).
+Toutes les photos actuelles ont été générées par IA. Ce guide permet de les recréer dans une direction artistique cohérente avec le design (noir laqué et or du logo), avec n'importe quel générateur d'images (Midjourney, DALL·E, Imagen, Firefly…).
 
 > **Recommandation :** de vraies photos des plats de la maison, prises au restaurant sous une lumière chaude, restent préférables. Elles rendent le site plus crédible et évitent de montrer des plats différents de ceux qui sont servis.
 

@@ -230,6 +230,10 @@ const data = {
     pointer-events: auto;
   }
 
+  .film[data-mode='film'] .film__card--intro:not([data-on]) {
+    pointer-events: none;
+  }
+
   .film__logo {
     inline-size: min(460px, 78vw);
     margin-block: 0.25rem 0.5rem;
@@ -247,6 +251,10 @@ const data = {
   .film__card h2 {
     font-size: var(--step-5);
     line-height: 0.98;
+  }
+
+  .film__card :is(h2, p) {
+    text-shadow: 0 1px 18px rgb(11 10 9 / 0.55);
   }
 
   .film__hangul {
@@ -319,7 +327,8 @@ const data = {
     font-size: var(--step--2);
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: color-mix(in srgb, var(--on-ink) 50%, transparent);
+    color: color-mix(in srgb, var(--on-ink) 82%, transparent);
+    text-shadow: 0 1px 10px rgb(11 10 9 / 0.8);
     transition: color 0.4s var(--ease-out);
   }
 
@@ -392,13 +401,21 @@ const data = {
     display: none;
   }
 
+  @media (max-aspect-ratio: 1/1) {
+    .film__stage::after {
+      background:
+        linear-gradient(to top, rgb(11 10 9 / 0.92) 0%, rgb(11 10 9 / 0.7) 42%, rgb(11 10 9 / 0.25) 64%, transparent 78%),
+        linear-gradient(to bottom, rgb(11 10 9 / 0.45), transparent 18%);
+    }
+  }
+
   @media (min-width: 1024px) {
     /* Voile à droite : repères de chapitres lisibles sur les plats clairs */
     .film[data-mode='film'] .film__stage::after {
       background:
         linear-gradient(to top, rgb(11 10 9 / 0.88) 0%, rgb(11 10 9 / 0.4) 36%, transparent 62%),
         linear-gradient(to right, rgb(11 10 9 / 0.5), transparent 58%),
-        linear-gradient(to left, rgb(11 10 9 / 0.6), transparent 24%),
+        linear-gradient(to left, rgb(11 10 9 / 0.78), rgb(11 10 9 / 0.35) 18%, transparent 32%),
         linear-gradient(to bottom, rgb(11 10 9 / 0.45), transparent 18%);
     }
   }
@@ -412,6 +429,10 @@ const data = {
   @media (max-width: 599px) {
     .film__frame {
       padding-block-end: clamp(4.5rem, calc(12 * var(--sv)), 6rem);
+    }
+
+    .film__actions {
+      justify-self: stretch;
     }
 
     .film__actions .btn {
@@ -457,6 +478,10 @@ const data = {
       min-block-size: 2.75rem;
       padding-block: 0.5rem;
     }
+
+    .film__skip {
+      display: none !important;
+    }
   }
 
   @media (max-height: 400px) {
@@ -470,12 +495,18 @@ const data = {
   }
 
   @media print {
-    .film,
-    .film .film__stage {
-      position: relative;
-      block-size: auto;
+    .film.film,
+    .film .film__stage.film__stage {
+      position: relative !important;
+      block-size: auto !important;
       background: none;
       color: #000;
+    }
+
+    .film__card--intro {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
     }
 
     .film__tagline {

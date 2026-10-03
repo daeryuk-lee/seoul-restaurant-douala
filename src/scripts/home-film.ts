@@ -12,7 +12,7 @@
 type Shot = { range: [number, number]; scroll: number; chapter: number; focus: [number, number] };
 type FilmData = { base: string; frames: number; shots: Shot[] };
 type SetName = 'd' | 'm';
-type Connection = { saveData?: boolean; effectiveType?: string };
+type Connection = { saveData?: boolean; effectiveType?: string; downlink?: number };
 
 /** Part de chaque plan consacrée au fondu vers le suivant. */
 const FADE = 0.22;
@@ -24,12 +24,19 @@ const connection = (navigator as Navigator & { connection?: Connection }).connec
 const lowData = Boolean(connection?.saveData) || /2g$/.test(connection?.effectiveType ?? '');
 
 if (film && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  // Économie de données : affiche fixe (la hauteur du film, prévue par la feuille de style, est retirée)
-  if (lowData) film.dataset.mode = 'still';
+  // Économie de données, ou fenêtre trop basse pour tenir une légende (fort zoom) : affiche fixe
+  // (la hauteur du film, prévue par la feuille de style, est retirée)
+  if (lowData || innerHeight < 320) film.dataset.mode = 'still';
   else start(film);
 }
 
 function start(film: HTMLElement) {
+  // Navigateur sans WebP (il a choisi l'affiche JPEG) : le film ne pourrait pas s'afficher
+  const poster = film.querySelector<HTMLImageElement>('.film__poster img');
+  if (poster?.currentSrc.endsWith('.jpg')) {
+    film.dataset.mode = 'still';
+    return;
+  }
   const data = JSON.parse(film.dataset.film ?? '{}') as FilmData;
   const stage = film.querySelector<HTMLElement>('.film__stage');
   const canvas = film.querySelector<HTMLCanvasElement>('.film__canvas');
@@ -58,7 +65,7 @@ function start(film: HTMLElement) {
   const chapters = Array.from({ length: chapterCount }, (_, c) => {
     const ks = shots.flatMap((s, k) => (s.chapter === c ? [k] : []));
     const a = starts[ks[0] ?? 0] ?? 0;
-    const lastK = ks.at(-1) ?? 0;
+    const lastK = ks[ks.length - 1] ?? 0;
     const b = (starts[lastK] ?? 0) + (shots[lastK]?.scroll ?? 0);
     return { a, b, len: b - a };
   });
@@ -90,15 +97,20 @@ function start(film: HTMLElement) {
   const requested: Record<SetName, Set<number>> = { d: new Set(), m: new Set() };
   const keyframes = shots.map((s) => s.range[0]);
   const isKeyframe = (i: number) => keyframes.includes(i);
-  // Images gardées en mémoire : la mémoire décodée d'une image portrait pèse environ 1,6 Mo
-  const KEEP = coarse || memory <= 4 ? 48 : 140;
   const AHEAD = coarse ? 28 : 40;
   const BEHIND = 8;
-  // Tout le film d'avance seulement sur ordinateur bien connecté (connexion annoncée en 4G)
-  const eager = !coarse && connection?.effectiveType === '4g';
+  // Images gardées en mémoire (une image portrait décodée pèse environ 1,6 Mo) : toujours plus
+  // que la fenêtre de chargement, pour ne jamais libérer une image qui vient d'être demandée
+  const KEEP = coarse || memory <= 4 ? AHEAD + BEHIND + 16 : data.frames;
+  // Tout le film d'avance seulement sur ordinateur réellement bien connecté (10 Mbit/s annoncés)
+  // et s'il peut le garder entièrement en mémoire
+  const eager = !coarse && (connection?.downlink ?? 0) >= 10 && KEEP >= data.frames;
+  const inWindow = (i: number) => i >= frameNow - BEHIND && i <= frameNow + AHEAD;
   let loading = 0;
+  let failures = 0;
   let started = false;
   let engaged = false;
+  let onScreen = true;
   let frameNow = 0;
   let shotNow = 0;
   let target = 0;
@@ -113,9 +125,9 @@ function start(film: HTMLElement) {
       if (i !== undefined && free(i)) return i;
     }
     for (const i of keyframes) if (free(i)) return i;
-    // 2. autour de la position de lecture, une fois que le visiteur fait défiler
-    //    (pas pendant un saut rapide : ces images ne seraient jamais vues)
-    if (!engaged || Math.abs(target - shown) > 0.6) return undefined;
+    // 2. autour de la position de lecture, une fois que le visiteur fait défiler, tant que le film
+    //    est à l'écran (pas pendant un saut rapide : ces images ne seraient jamais vues)
+    if (!engaged || !onScreen || Math.abs(target - shown) > 0.6) return undefined;
     for (let d = 0; d <= AHEAD; d++) {
       if (free(frameNow + d)) return frameNow + d;
       if (d <= BEHIND && free(frameNow - d)) return frameNow - d;
@@ -127,15 +139,17 @@ function start(film: HTMLElement) {
     return undefined;
   };
 
-  /** Libère les images les plus éloignées de la position de lecture (téléphones modestes). */
+  /** Libère les images les plus éloignées de la fenêtre de lecture (téléphones modestes). */
   const evict = (name: SetName) => {
     const list = cache[name];
     const held = list.flatMap((img, i) => (img && !isKeyframe(i) ? [i] : []));
     if (held.length <= KEEP) return;
-    held.sort((a, b) => Math.abs(b - frameNow) - Math.abs(a - frameNow));
-    for (const i of held.slice(0, held.length - KEEP)) {
+    const outside = held.filter((i) => !inWindow(i));
+    const gap = (i: number) => (i < frameNow ? frameNow - BEHIND - i : i - frameNow - AHEAD);
+    outside.sort((a, b) => gap(b) - gap(a));
+    for (const i of outside.slice(0, held.length - KEEP)) {
       list[i] = undefined;
-      requested[name].delete(i); // rechargée depuis le cache du navigateur si besoin
+      requested[name].delete(i); // redemandée (depuis le cache du navigateur) si la lecture y revient
     }
   };
 
@@ -156,12 +170,13 @@ function start(film: HTMLElement) {
           cache[name][i] = img;
           evict(name);
           if (name === set) request();
-        } else if (i === 0 && !drawn) {
-          // Format WebP non pris en charge (très anciens navigateurs) : affiche fixe
-          film.dataset.mode = 'still';
-          return;
+          pump();
+        } else {
+          // Erreur réseau passagère : l'image pourra être redemandée un peu plus tard
+          failures++;
+          if (failures <= 20) setTimeout(() => requested[name].delete(i), 4000);
+          setTimeout(pump, 4000);
         }
-        pump();
       };
       img.addEventListener('load', () => img.decode().then(() => done(true), () => done(true)), { once: true });
       img.addEventListener('error', () => done(false), { once: true });
@@ -283,10 +298,18 @@ function start(film: HTMLElement) {
       const o = Math.round(smooth(a0, a1, T) * (1 - fadeOut) * 100) / 100;
       if (o === card.o) continue;
       card.o = o;
+      const legible = o > 0.5;
       card.el.style.opacity = String(o);
       card.el.style.transform = `translateY(${((1 - o) * 14).toFixed(1)}px)`;
-      card.el.style.visibility = o === 0 ? 'hidden' : 'visible';
-      card.el.toggleAttribute('data-on', o > 0.5);
+      card.el.toggleAttribute('data-on', legible);
+      if (card.el.dataset.card === 'intro') {
+        // L'ouverture porte le titre principal de la page : elle reste lisible par les lecteurs
+        // d'écran, mais ses boutons estompés sortent de l'ordre de tabulation
+        card.el.querySelectorAll<HTMLElement>('a, button').forEach((el) => (legible ? el.removeAttribute('tabindex') : (el.tabIndex = -1)));
+      } else {
+        // Légende à peine visible : ni focus clavier invisible, ni lecture hors contexte
+        card.el.style.visibility = legible ? 'visible' : 'hidden';
+      }
     }
 
     let c = 0;
@@ -304,8 +327,9 @@ function start(film: HTMLElement) {
   const read = () => {
     const rect = film.getBoundingClientRect();
     const distance = rect.height - stage.offsetHeight;
-    // En-tête transparent tant que le film occupe le haut de l'écran
-    root.toggleAttribute('data-film-active', rect.bottom > 80);
+    onScreen = rect.bottom > 0 && rect.top < innerHeight;
+    // En-tête transparent seulement tant que le film est épinglé et occupe tout l'écran
+    root.toggleAttribute('data-film-active', rect.top <= 1 && rect.bottom >= innerHeight - 1);
     return distance > 0 ? clamp(-rect.top / distance, 0, 1) * total : 0;
   };
 
@@ -326,6 +350,7 @@ function start(film: HTMLElement) {
   }
 
   const jump = (T: number) => {
+    if (T > 0) engaged = true; // page rouverte ou rechargée au milieu du film
     target = shown = T;
     render(T);
   };
@@ -334,16 +359,16 @@ function start(film: HTMLElement) {
     'scroll',
     () => {
       const T = read();
-      if (T === target && T === shown) return; // film déjà dépassé ou immobile : rien à redessiner
       if (T > 0) engaged = true;
+      if (T === target && T === shown) return; // film déjà dépassé ou immobile : rien à redessiner
       target = T;
       request();
     },
     { passive: true },
   );
   new ResizeObserver(() => {
-    resize();
     switchSet();
+    resize();
     jump(read());
   }).observe(stage);
   // Retour arrière depuis une autre page (cache de navigation), onglet réaffiché, toile réinitialisée

@@ -24,7 +24,7 @@ Site officiel de **Seoul Restaurant Coréen** (Rue Chococho, à côté de LGM, D
 | Textes de l'interface (4 langues)                                                                             | `src/i18n/ui.ts`       |
 | Mentions légales et politique de confidentialité                                                              | `src/content/legal.ts` |
 | Photos (déposer les originaux ici, puis lancer `npm run brand`)                                               | `src/assets/images/_originals/` |
-| Film de l'accueil (plans, rubriques, recadrage ; puis `npm run film -- video.mp4`)                            | `src/data/film.json`   |
+| Film de l'accueil (plans, rubriques, recadrage ; nouvelle vidéo : changer `version` puis `npm run film`)       | `src/data/film.json`   |
 
 Pour régénérer les photos dans la direction artistique du site, voir [docs/prompts-images.md](docs/prompts-images.md). Pour les remplacer par de vraies images (photos et film), voir [docs/tournage.md](docs/tournage.md).
 
@@ -39,7 +39,7 @@ npm run build      # vérification des types + génération dans dist/
 npm run preview    # prévisualiser le site généré
 npm run brand      # régénérer logo, icônes, image de partage et étalonnage des photos
 npm run brand -- --sans-photos   # logo, icônes et image de partage seulement
-npm run film -- chemin/vers/video.mp4   # découper la vidéo de l'accueil en images (nécessite ffmpeg)
+npm run film -- chemin/vers/video.mp4   # découper la vidéo de l'accueil en images (nécessite ffmpeg ; changer d'abord « version » dans src/data/film.json)
 ```
 
 ## Déploiement (Cloudflare Pages)

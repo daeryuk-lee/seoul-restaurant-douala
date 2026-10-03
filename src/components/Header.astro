@@ -130,6 +130,11 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     opacity: 0;
   }
 
+  /* Au-dessus du film, l'en-tête reste transparent : voile plus dense pour la lisibilité des liens */
+  :global([data-film-active]) .site-header::before {
+    background: linear-gradient(to bottom, rgb(11 10 9 / 0.88), rgb(11 10 9 / 0.5) 70%, transparent);
+  }
+
   .site-header__inner {
     display: grid;
     grid-template-columns: 1fr auto 1fr;

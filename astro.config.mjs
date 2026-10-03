@@ -21,7 +21,9 @@ const LATIN_EXT = [
  *
  * Le fournisseur « local » d'Astro ne sait pas écrire local('Calibri') : ce petit fournisseur le fait.
  */
-const SUBSETS = { latin: LATIN, 'latin-ext': LATIN_EXT };
+// latin-ext d'abord : pour les caractères communs aux deux plages (comme « œ »), le navigateur
+// essaie la dernière police déclarée, ici latin, et ne télécharge pas latin-ext pour rien
+const SUBSETS = { 'latin-ext': LATIN_EXT, latin: LATIN };
 const FACES = [
   { weight: 400, style: 'normal', local: ['Calibri', 'Carlito Regular', 'Carlito-Regular'] },
   { weight: 700, style: 'normal', local: ['Calibri Bold', 'Calibri-Bold', 'Carlito Bold', 'Carlito-Bold'] },
