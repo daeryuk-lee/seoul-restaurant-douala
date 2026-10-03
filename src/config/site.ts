@@ -53,7 +53,7 @@ export const site = {
       url: 'https://www.cloudflare.com',
     },
     /** Date de dernière mise à jour des pages légales (AAAA-MM-JJ). */
-    lastUpdated: '2026-09-29',
+    lastUpdated: '2026-10-03',
   },
 } as const;
 

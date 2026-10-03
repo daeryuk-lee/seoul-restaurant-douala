@@ -1,14 +1,16 @@
 /**
  * Identité visuelle de Seoul — génère toutes les ressources de marque de façon reproductible.
  *
- *  1. Logo vectoriel (src/assets/brand/*.svg) : sceau coréen (dojang) gravé « 서울 »
- *     + mot-symbole « SEOUL ». Les lettres sont converties en tracés à partir de polices
- *     libres (licence OFL, voir scripts/fonts/) : aucune police n'est nécessaire à l'affichage.
- *  2. Icônes (favicon, Apple, PWA) et image de partage Open Graph (public/).
+ *  1. Logo vectoriel (src/assets/brand/*.svg), dérivé du vrai logo du restaurant :
+ *     - « Seoul » : tracé vectoriel de la couverture du menu (scripts/brand/seoul-trace.svg) ;
+ *     - « Restaurant Coréen » : Calibri, recomposé avec Carlito (même dessin et mêmes métriques,
+ *       licence OFL) et converti en tracés : aucune police n'est nécessaire à l'affichage.
+ *  2. Icônes (favicon, Apple, PWA) tirées du « S » du logo, et image de partage Open Graph (public/).
  *  3. Étalonnage uniforme des photos : src/assets/images/_originals/** → src/assets/images/**
  *     (lumière basse et chaude, noirs profonds, vignettage, grain argentique).
  *
- * Usage : npm run brand
+ * Usage : npm run brand              (tout)
+ *         npm run brand -- --sans-photos   (logo, icônes et image de partage seulement)
  * Pour remplacer une photo : déposer la nouvelle image dans _originals/ sous le même nom, puis relancer.
  */
 import { readFileSync } from 'node:fs';
@@ -19,113 +21,154 @@ import sharp from 'sharp';
 
 const COLORS = {
   ink: '#0b0a09',
-  seal: '#a8322a',
-  sealInk: '#f4e9d4',
-  gold: '#d4b06a',
+  /** Or du logo, mesuré sur la couverture du menu. */
+  gold: '#dac15c',
 };
 
-const loadFont = (path) => {
-  const buffer = readFileSync(path);
-  return opentype.parse(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength));
-};
-const hangulFont = loadFont('scripts/fonts/SongMyung-Regular.ttf');
-const latinFont = loadFont('scripts/fonts/CormorantGaramond.ttf');
+/**
+ * L'image de la couverture du menu a été écrasée en largeur : son texte en Calibri ne retrouve ses
+ * proportions qu'élargi de 61 % (1 / 0,62). Le logo est donc élargi d'autant.
+ * Mettre 1 pour reproduire l'image telle quelle.
+ */
+const STRETCH = 1.612;
+
+const withPhotos = !process.argv.includes('--sans-photos');
 
 await mkdir('src/assets/brand', { recursive: true });
 await mkdir('public/icons', { recursive: true });
 
 /* ───────────────────────────── 1. Logo vectoriel ───────────────────────────── */
 
-/** Tracé d'une chaîne, avec interlettrage, recadré pour tenir dans une boîte (x, y, w, h). */
-function fitText(font, text, box, { tracking = 0, align = 'center' } = {}) {
-  const size = 1000;
-  let x = 0;
-  const glyphPaths = [];
-  for (const char of text) {
-    const glyph = font.charToGlyph(char);
-    glyphPaths.push(glyph.getPath(x, 0, size));
-    x += (glyph.advanceWidth * size) / font.unitsPerEm + tracking * size;
-  }
-  const merged = new opentype.Path();
-  glyphPaths.forEach((p) => merged.extend(p));
-  const bb = merged.getBoundingBox();
-  const scale = Math.min(box.w / (bb.x2 - bb.x1), box.h / (bb.y2 - bb.y1));
-  const w = (bb.x2 - bb.x1) * scale;
-  const h = (bb.y2 - bb.y1) * scale;
-  const offsetX = box.x + (align === 'center' ? (box.w - w) / 2 : 0) - bb.x1 * scale;
-  const offsetY = box.y + (box.h - h) / 2 - bb.y1 * scale;
+/** Tracé source : coordonnées absolues (commandes M, C, L) en pixels de l'image recadrée. */
+const traceD = readFileSync('scripts/brand/seoul-trace.svg', 'utf8').match(/ d="([^"]+)"/)[1];
 
-  const out = new opentype.Path();
-  for (const cmd of merged.commands) {
-    const t = { ...cmd };
-    for (const [kx, ky] of [['x', 'y'], ['x1', 'y1'], ['x2', 'y2']]) {
-      if (kx in t) {
-        t[kx] = t[kx] * scale + offsetX;
-        t[ky] = t[ky] * scale + offsetY;
-      }
+/** Découpe le tracé en sous-chemins (S, e, o, u, l et les contre-formes), points absolus. */
+function parseTrace(d) {
+  const tokens = d.match(/[MCL]|-?\d*\.?\d+/g);
+  const subpaths = [];
+  let cmd = '';
+  for (let i = 0; i < tokens.length; ) {
+    if (/[MCL]/.test(tokens[i])) {
+      cmd = tokens[i++];
+      if (cmd === 'M') subpaths.push([]);
+      continue;
     }
-    out.commands.push(t);
+    const n = cmd === 'C' ? 3 : 1;
+    const pts = [];
+    for (let k = 0; k < n; k++, i += 2) pts.push([Number(tokens[i]), Number(tokens[i + 1])]);
+    subpaths.at(-1).push({ cmd, pts });
   }
-  return { d: out.toPathData(2), width: w, height: h };
+  return subpaths;
+}
+const trace = parseTrace(traceD);
+
+const bounds = (subpaths) => {
+  const all = subpaths.flat().flatMap((s) => s.pts);
+  const xs = all.map((p) => p[0]);
+  const ys = all.map((p) => p[1]);
+  return { x1: Math.min(...xs), y1: Math.min(...ys), x2: Math.max(...xs), y2: Math.max(...ys) };
+};
+
+/** Applique (x, y) → map(x, y), arrondit au dixième et écrit un tracé relatif compact. */
+function toPath(subpaths, map) {
+  const fmt = (v) => (Math.round(v) / 10).toString().replace(/^(-?)0\./, '$1.');
+  let out = '';
+  let cx = 0;
+  let cy = 0;
+  for (const sub of subpaths) {
+    let start = null;
+    for (const { cmd, pts } of sub) {
+      // Travail en dixièmes entiers : aucune dérive d'arrondi d'un segment à l'autre
+      const abs = pts.map(([x, y]) => map(x, y).map((v) => Math.round(v * 10)));
+      const nums = abs.flatMap(([x, y]) => [x - cx, y - cy]);
+      out += { M: 'm', C: 'c', L: 'l' }[cmd] + nums.map(fmt).join(' ').replace(/ -/g, '-');
+      [cx, cy] = abs.at(-1);
+      if (cmd === 'M') start = abs[0];
+    }
+    out += 'z';
+    [cx, cy] = start;
+  }
+  return out;
 }
 
-/** Sceau carré de 100 × 100 : fond vermillon, filet intérieur, « 서 » au-dessus de « 울 ». */
-function sealGroup(x, y, size) {
-  const s = size / 100;
-  const seo = fitText(hangulFont, '서', { x: 18, y: 12, w: 64, h: 36 });
-  const ul = fitText(hangulFont, '울', { x: 18, y: 53, w: 64, h: 36 });
-  return `<g transform="translate(${x} ${y}) scale(${s})">
-    <rect class="logo-seal" width="100" height="100" rx="7" fill="${COLORS.seal}"/>
-    <rect class="logo-seal-ink" x="6" y="6" width="88" height="88" rx="4" fill="none" stroke="${COLORS.sealInk}" stroke-width="1.6"/>
-    <path class="logo-seal-ink" fill="${COLORS.sealInk}" d="${seo.d}"/>
-    <path class="logo-seal-ink" fill="${COLORS.sealInk}" d="${ul.d}"/>
-  </g>`;
+/** Tracé opentype.js (M, L, Q, C, Z) → tracé relatif compact, au dixième. */
+function compactGlyphs(path) {
+  const fmt = (v) => (Math.round(v) / 10).toString().replace(/^(-?)0\./, '$1.');
+  let out = '';
+  let cx = 0;
+  let cy = 0;
+  let sx = 0;
+  let sy = 0;
+  for (const c of path.commands) {
+    if (c.type === 'Z') {
+      out += 'z';
+      [cx, cy] = [sx, sy];
+      continue;
+    }
+    const pts = (c.type === 'C' ? [[c.x1, c.y1], [c.x2, c.y2], [c.x, c.y]] : c.type === 'Q' ? [[c.x1, c.y1], [c.x, c.y]] : [[c.x, c.y]]).map(
+      ([x, y]) => [Math.round(x * 10), Math.round(y * 10)],
+    );
+    out += c.type.toLowerCase() + pts.flatMap(([x, y]) => [x - cx, y - cy]).map(fmt).join(' ').replace(/ -/g, '-');
+    [cx, cy] = pts.at(-1);
+    if (c.type === 'M') [sx, sy] = [cx, cy];
+  }
+  return out;
 }
 
 const svg = (w, h, body, label) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${label}">${body}</svg>\n`;
 
-// Mot-symbole « SEOUL » : capitales de Cormorant Garamond, largement espacées
-const WORD_H = 46;
-const word = fitText(latinFont, 'SEOUL', { x: 0, y: 0, w: 1000, h: WORD_H }, { tracking: 0.32, align: 'left' });
+const word = bounds(trace);
+const PAD = 2;
+/** Repère du logo : origine au coin haut-gauche du mot « Seoul », largeur multipliée par STRETCH. */
+const toLogo = (x, y) => [(x - word.x1) * STRETCH + PAD, y - word.y1 + PAD];
+// Dimensions entières : elles servent aussi d'attributs width/height des balises <img>
+const wordW = Math.ceil((word.x2 - word.x1) * STRETCH + PAD * 2);
+const wordH = Math.ceil(word.y2 - word.y1 + PAD * 2);
+const wordPath = `<path fill="${COLORS.gold}" fill-rule="evenodd" d="${toPath(trace, toLogo)}"/>`;
 
-// Horizontal : sceau à gauche, mot-symbole à droite (en-tête, pied de page)
+// Mot-symbole seul (en-tête)
+await writeFile('src/assets/brand/logo-word.svg', svg(wordW, wordH, wordPath, 'Seoul'));
+
+// Logo complet : « Restaurant Coréen » aligné à droite sous « Seoul », comme sur le menu.
+// Mesures relevées sur la couverture (pixels de l'image recadrée) : bord droit de l'encre 508,
+// ligne de base 203,5, largeur d'encre 248.
 {
-  const seal = 100;
-  const gap = 34;
-  const w = Math.ceil(seal + gap + word.width);
-  const wordY = (seal - WORD_H) / 2;
-  const wordPath = fitText(latinFont, 'SEOUL', { x: seal + gap, y: wordY, w: word.width, h: WORD_H }, { tracking: 0.32, align: 'left' });
+  const woff = readFileSync('node_modules/@fontsource/carlito/files/carlito-latin-400-normal.woff');
+  const carlito = opentype.parse(woff.buffer.slice(woff.byteOffset, woff.byteOffset + woff.byteLength));
+  const TAG = 'Restaurant Coréen';
+  const ref = carlito.getPath(TAG, 0, 0, 100, { kerning: true }).getBoundingBox();
+  const size = (100 * 248 * STRETCH) / (ref.x2 - ref.x1);
+  const [right, baseline] = toLogo(508, 203.5);
+  const ink = carlito.getPath(TAG, 0, 0, size, { kerning: true }).getBoundingBox();
+  const tag = carlito.getPath(TAG, right - ink.x2, baseline, size, { kerning: true });
+  // Les lettres rondes dépassent légèrement sous la ligne de base
+  const h = Math.ceil(baseline + Math.max(0, ink.y2) + PAD);
   await writeFile(
-    'src/assets/brand/logo-horizontal.svg',
-    svg(w, seal, `${sealGroup(0, 0, seal)}<path class="logo-word" fill="${COLORS.gold}" d="${wordPath.d}"/>`, 'Seoul'),
+    'src/assets/brand/logo.svg',
+    svg(wordW, h, `${wordPath}<path fill="${COLORS.gold}" d="${compactGlyphs(tag)}"/>`, 'Seoul Restaurant Coréen'),
   );
 }
-
-// Empilé : sceau au-dessus du mot-symbole (page d'accueil, image de partage)
-{
-  const seal = 120;
-  const w = Math.ceil(Math.max(seal, word.width * 1.35));
-  const wordW = word.width * 1.35;
-  const wordH = WORD_H * 1.35;
-  const top = seal + 44;
-  const wordPath = fitText(latinFont, 'SEOUL', { x: (w - wordW) / 2, y: top, w: wordW, h: wordH }, { tracking: 0.32 });
-  await writeFile(
-    'src/assets/brand/logo-stacked.svg',
-    svg(w, Math.ceil(top + wordH), `${sealGroup((w - seal) / 2, 0, seal)}<path class="logo-word" fill="${COLORS.gold}" d="${wordPath.d}"/>`, 'Seoul'),
-  );
-}
-
-// Sceau seul (icônes)
-await writeFile('src/assets/brand/seal.svg', svg(100, 100, sealGroup(0, 0, 100), '서울'));
 
 /* ───────────────────────────── 2. Icônes et partage ───────────────────────────── */
 
-const sealSvg = Buffer.from(svg(100, 100, sealGroup(0, 0, 100), ''));
+// Monogramme : le « S » du logo, centré dans un carré de 100
+const monogramSvg = (label) => {
+  const s = [trace[0]];
+  const b = bounds(s);
+  const w = (b.x2 - b.x1) * STRETCH;
+  const h = b.y2 - b.y1;
+  const scale = 84 / Math.max(w, h);
+  const ox = (100 - w * scale) / 2;
+  const oy = (100 - h * scale) / 2;
+  const d = toPath(s, (x, y) => [(x - b.x1) * STRETCH * scale + ox, (y - b.y1) * scale + oy]);
+  return svg(100, 100, `<path fill="${COLORS.gold}" d="${d}"/>`, label);
+};
+const monogram = Buffer.from(monogramSvg(''));
 
 async function icon(size, { padding, background = COLORS.ink, radius = 0 }) {
   const inner = Math.round(size * (1 - padding * 2));
-  const glyph = await sharp(sealSvg, { density: 72 * (inner / 100) * 2 }).resize(inner, inner).png().toBuffer();
+  const glyph = await sharp(monogram, { density: 72 * (inner / 100) * 2 }).resize(inner, inner).png().toBuffer();
   const layers = [{ input: glyph, gravity: 'centre' }];
   if (radius) {
     layers.push({
@@ -139,16 +182,20 @@ async function icon(size, { padding, background = COLORS.ink, radius = 0 }) {
     .toBuffer();
 }
 
-const transparent = { r: 0, g: 0, b: 0, alpha: 0 };
 const icons = {
-  'icons/favicon-32.png': await icon(32, { padding: 0.03, background: transparent }),
-  'icons/apple-touch-icon.png': await icon(180, { padding: 0.18 }),
+  'icons/favicon-32.png': await icon(32, { padding: 0.04, radius: 6 }),
+  'icons/apple-touch-icon.png': await icon(180, { padding: 0.16 }),
   'icons/icon-192.png': await icon(192, { padding: 0.16, radius: 40 }),
   'icons/icon-512.png': await icon(512, { padding: 0.16, radius: 104 }),
   'icons/icon-maskable-512.png': await icon(512, { padding: 0.26 }),
 };
 for (const [path, buffer] of Object.entries(icons)) await writeFile(`public/${path}`, buffer);
-await writeFile('public/icons/favicon.svg', svg(100, 100, sealGroup(0, 0, 100), 'Seoul'));
+
+// favicon.svg : « S » or sur fond d'encre arrondi (lisible sur les onglets clairs comme sombres)
+await writeFile(
+  'public/icons/favicon.svg',
+  monogramSvg('Seoul').replace('<path', `<rect width="100" height="100" rx="18" fill="${COLORS.ink}"/><path`),
+);
 
 // favicon.ico : PNG encapsulé dans un conteneur ICO
 {
@@ -211,18 +258,20 @@ async function grade(source, target) {
     .toFile(target);
 }
 
-for (const source of await listImages(ORIGINALS)) {
-  const target = join('src/assets/images', relative(ORIGINALS, source));
-  await mkdir(dirname(target), { recursive: true });
-  await grade(source, target);
+if (withPhotos) {
+  for (const source of await listImages(ORIGINALS)) {
+    const target = join('src/assets/images', relative(ORIGINALS, source));
+    await mkdir(dirname(target), { recursive: true });
+    await grade(source, target);
+  }
 }
 
-// Image de partage 1200 × 630 : photo étalonnée assombrie + logo empilé
+// Image de partage 1200 × 630 : photo étalonnée assombrie + logo complet
 {
-  const logo = await sharp('src/assets/brand/logo-stacked.svg', { density: 220 }).resize({ height: 300 }).png().toBuffer();
+  const logo = await sharp('src/assets/brand/logo.svg', { density: 300 }).resize({ width: 660 }).png().toBuffer();
   const shade = Buffer.from(
     `<svg width="1200" height="630"><defs><radialGradient id="g" cx="50%" cy="50%" r="75%">
-      <stop offset="0%" stop-color="${COLORS.ink}" stop-opacity="0.72"/>
+      <stop offset="0%" stop-color="${COLORS.ink}" stop-opacity="0.74"/>
       <stop offset="100%" stop-color="${COLORS.ink}" stop-opacity="0.95"/></radialGradient></defs>
       <rect width="1200" height="630" fill="url(#g)"/></svg>`,
   );
@@ -233,4 +282,8 @@ for (const source of await listImages(ORIGINALS)) {
     .toFile('public/og-image.jpg');
 }
 
-console.log('Identité visuelle générée : logo, icônes, image de partage et photos étalonnées.');
+console.log(
+  withPhotos
+    ? 'Identité visuelle générée : logo, icônes, image de partage et photos étalonnées.'
+    : 'Identité visuelle générée : logo, icônes et image de partage (photos inchangées).',
+);

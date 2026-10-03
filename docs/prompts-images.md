@@ -1,6 +1,6 @@
 # Régénérer les photos du site
 
-Toutes les photos actuelles ont été générées par IA. Ce guide permet de les recréer dans une direction artistique cohérente avec le design (noir laqué, or, sceau vermillon), avec n'importe quel générateur d'images (Midjourney, DALL·E, Imagen, Firefly…).
+Toutes les photos actuelles ont été générées par IA. Ce guide permet de les recréer dans une direction artistique cohérente avec le design (noir laqué et or du logo), avec n'importe quel générateur d'images (Midjourney, DALL·E, Imagen, Firefly…).
 
 > **Recommandation :** de vraies photos des plats de la maison, prises au restaurant sous une lumière chaude, restent préférables. Elles rendent le site plus crédible et évitent de montrer des plats différents de ceux qui sont servis.
 
@@ -31,8 +31,8 @@ soft golden rim light, dark charcoal slate or dark walnut surface, subtle brass 
 | `food/fried-chicken.jpg` | Korean fried chicken glazed with sweet and spicy sauce, sesame seeds and sliced spring onion, in a matte black bowl |
 | `food/noodles.jpg` | A bowl of spicy seafood jjamppong with noodles, mussels, squid and prawns in a deep red broth, steam rising |
 | `food/supplements.jpg` | A composition of Korean side dishes: steamed rice in a small stone pot, kimchi, soft tofu, rolled egg omelette, in small celadon dishes |
-| `hero-bg.jpg` | Photo de repli de l'accueil (affichée si la 3D est indisponible) : wide shot of a dark, elegant Korean dining room at night, warm pendant lights above wooden tables with built-in grills, empty, cinematic — **ou mieux, une vraie photo de la salle** |
+| `hero-bg.jpg` | Photo d'ambiance des pages Réservation et Plan, et de la page 404 : wide shot of a dark, elegant Korean dining room at night, warm pendant lights above wooden tables with built-in grills, empty, cinematic — **ou mieux, une vraie photo de la salle** |
 
 ## Mention légale
 
-Tant que les photos proviennent d'un générateur d'images, laissez la mention « Visuels d'illustration générés par intelligence artificielle, non contractuels », présente en pied de page, sur la carte et dans les mentions légales. Si vous passez à de vraies photos, modifiez ces textes dans `src/i18n/ui.ts` et `src/content/legal.ts`.
+Tant que les photos (et le film de l'accueil) proviennent d'un générateur d'images, laissez la mention « Visuels d'illustration générés par intelligence artificielle, non contractuels », présente en pied de page, sur la carte et dans les mentions légales. Si vous passez à de vraies photos, modifiez ces textes dans `src/i18n/ui.ts` et `src/content/legal.ts`.

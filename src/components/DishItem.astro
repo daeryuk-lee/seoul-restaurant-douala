@@ -108,7 +108,7 @@ const isNewActive = dish.isNew && new Date().toISOString().slice(0, 10) <= newDi
   .dish__name {
     font-family: var(--font-display);
     font-size: var(--step-2);
-    font-weight: 450;
+    font-weight: var(--fw-regular);
     line-height: 1.2;
     letter-spacing: 0;
   }
@@ -118,7 +118,7 @@ const isNewActive = dish.isNew && new Date().toISOString().slice(0, 10) <= newDi
     margin-top: 0.25rem;
     font-family: var(--font-text);
     font-size: var(--step--1);
-    font-weight: 350;
+    font-weight: var(--fw-regular);
     letter-spacing: 0.08em;
     color: var(--accent);
   }
@@ -127,7 +127,7 @@ const isNewActive = dish.isNew && new Date().toISOString().slice(0, 10) <= newDi
     flex: none;
     font-family: var(--font-display);
     font-size: var(--step-1);
-    font-weight: 500;
+    font-weight: var(--fw-bold);
     font-variant-numeric: lining-nums tabular-nums;
     white-space: nowrap;
     color: var(--fg);
@@ -177,7 +177,7 @@ const isNewActive = dish.isNew && new Date().toISOString().slice(0, 10) <= newDi
     order: 2;
     font-family: var(--font-display);
     font-size: var(--step-1);
-    font-weight: 500;
+    font-weight: var(--fw-bold);
     font-variant-numeric: lining-nums tabular-nums;
   }
 

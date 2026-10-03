@@ -13,33 +13,37 @@
     --char: #13110f;
     --char-raised: #1d1a17;
     --line-dark: rgb(236 226 208 / 0.12);
-    --brass: #d2ae62;
-    --brass-bright: #e6c887;
-    --seal: #a8322a;
+    /* Or du logo */
+    --brass: #dac15c;
+    --brass-bright: #e6d186;
     --on-ink: #efe7da;
     --on-ink-muted: #a1978a;
     --chili-on-ink: #e5735c;
     --jade-on-ink: #8cc3a4;
 
-    /* Typographie */
-    --font-display: var(--font-cormorant), 'Nanum Myeongjo', 'AppleMyungjo', 'Batang', 'Songti SC', 'STSong',
-      'Noto Serif CJK SC', serif;
-    --font-text: var(--font-jost), 'Apple SD Gothic Neo', 'Malgun Gothic', 'PingFang SC', 'Microsoft YaHei',
+    /* Typographie : Calibri, la police du logo (Carlito quand Calibri n'est pas installée),
+       puis les polices système coréennes et chinoises */
+    --font-sans: var(--font-carlito), 'Apple SD Gothic Neo', 'Malgun Gothic', 'PingFang SC', 'Microsoft YaHei',
       'Noto Sans CJK SC', system-ui, sans-serif;
+    --font-display: var(--font-sans);
+    --font-text: var(--font-sans);
+    /* Calibri et Carlito n'existent qu'en deux graisses */
+    --fw-regular: 400;
+    --fw-bold: 700;
 
     --step--2: clamp(0.72rem, 0.7rem + 0.08vw, 0.78rem);
     --step--1: clamp(0.82rem, 0.8rem + 0.1vw, 0.9rem);
     --step-0: clamp(1rem, 0.97rem + 0.15vw, 1.08rem);
     --step-1: clamp(1.2rem, 1.1rem + 0.45vw, 1.45rem);
     --step-2: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
-    --step-3: clamp(1.9rem, 1.5rem + 2vw, 3.1rem);
-    --step-4: clamp(2.4rem, 1.7rem + 3.4vw, 4.6rem);
-    --step-5: clamp(3rem, 1.8rem + 6vw, 7rem);
+    --step-3: clamp(1.7rem, 1.4rem + 1.6vw, 2.7rem);
+    --step-4: clamp(2.1rem, 1.5rem + 2.9vw, 3.9rem);
+    --step-5: clamp(2.6rem, 1.6rem + 5vw, 5.75rem);
 
     /* Espacements */
     --gutter: clamp(1rem, 0.4rem + 3vw, 3rem);
     --section: clamp(4.5rem, 2.5rem + 8vw, 10rem);
-    --measure: 62ch;
+    --measure: 68ch;
     --max: 1320px;
 
     /* Mouvement */
@@ -165,8 +169,8 @@
     color: var(--fg);
     font-family: var(--font-text);
     font-size: var(--step-0);
-    font-weight: 350;
-    line-height: 1.65;
+    font-weight: var(--fw-regular);
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -187,9 +191,9 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 400;
+    font-weight: var(--fw-regular);
     line-height: 1.08;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
 
@@ -220,7 +224,12 @@
   }
 
   strong {
-    font-weight: 500;
+    font-weight: var(--fw-bold);
+  }
+
+  /* Pas de fausse italique sur les caractères coréens et chinois */
+  :is(:lang(ko), :lang(zh-Hans)) {
+    font-synthesis-style: none;
   }
 
   abbr[title] {
@@ -254,8 +263,8 @@
     gap: 0.9rem;
     font-family: var(--font-text);
     font-size: var(--step--2);
-    font-weight: 450;
-    letter-spacing: 0.28em;
+    font-weight: var(--fw-regular);
+    letter-spacing: 0.24em;
     text-transform: uppercase;
     color: var(--accent);
   }
@@ -275,7 +284,7 @@
 
   .lead {
     font-size: var(--step-1);
-    font-weight: 300;
+    font-weight: var(--fw-regular);
     line-height: 1.55;
     color: var(--muted);
     max-width: var(--measure);
@@ -296,7 +305,7 @@
     color: var(--btn-fg);
     font-family: var(--font-text);
     font-size: var(--step--1);
-    font-weight: 450;
+    font-weight: var(--fw-regular);
     letter-spacing: 0.18em;
     text-transform: uppercase;
     text-decoration: none;
