@@ -10,7 +10,7 @@
  */
 
 type Shot = { range: [number, number]; scroll: number; chapter: number; focus: [number, number] };
-type FilmData = { base: string; frames: number; shots: Shot[] };
+type FilmData = { base: string; frames: number; sizes: Record<'d' | 'm', [number, number]>; shots: Shot[] };
 type SetName = 'd' | 'm';
 type Connection = { saveData?: boolean; effectiveType?: string; downlink?: number };
 
@@ -210,11 +210,12 @@ function start(film: HTMLElement) {
   let W = 0;
   let H = 0;
   const resize = () => {
-    const w = stage.clientWidth;
-    const h = stage.clientHeight;
+    // Sur téléphone, la toile n'occupe qu'une fenêtre sous l'en-tête (voir HomeFilm.astro)
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
     // Pas plus de détail que les images n'en contiennent : la toile reste proche de leur résolution
-    const source = set === 'm' ? { w: 540, h: 720 } : { w: 1280, h: 720 };
-    const density = 1 / Math.max(w / source.w, h / source.h);
+    const [sw, sh] = data.sizes[set];
+    const density = 1 / Math.max(w / sw, h / sh);
     const dpr = Math.min(devicePixelRatio || 1, 2, Math.max(1, density * 1.5));
     W = Math.round(w * dpr);
     H = Math.round(h * dpr);
@@ -259,8 +260,9 @@ function start(film: HTMLElement) {
     const own = cache[set][i0] ?? nearest(i0, k, set);
     const img0 = own ?? nearest(i0, k, set === 'm' ? 'd' : 'm');
     if (!img0) return false;
-    const portraitImage = img0.naturalWidth < img0.naturalHeight;
-    const focus = portraitImage ? 0.5 : shot.focus[0] + (shot.focus[1] - shot.focus[0]) * u;
+    // Les images pour téléphones (carrées) sont déjà recadrées sur le plat
+    const cropped = img0.naturalWidth <= img0.naturalHeight;
+    const focus = cropped ? 0.5 : shot.focus[0] + (shot.focus[1] - shot.focus[0]) * u;
     paint(img0, alpha, focus);
     const img1 = own && i0 < b ? cache[set][i0 + 1] : undefined;
     if (img1 && mix > 0.02) paint(img1, alpha * mix, focus);
@@ -366,11 +368,13 @@ function start(film: HTMLElement) {
     },
     { passive: true },
   );
-  new ResizeObserver(() => {
+  const observer = new ResizeObserver(() => {
     switchSet();
     resize();
     jump(read());
-  }).observe(stage);
+  });
+  observer.observe(stage);
+  observer.observe(canvas);
   // Retour arrière depuis une autre page (cache de navigation), onglet réaffiché, toile réinitialisée
   addEventListener('pageshow', (event) => event.persisted && jump(read()));
   document.addEventListener('visibilitychange', () => !document.hidden && jump(read()));

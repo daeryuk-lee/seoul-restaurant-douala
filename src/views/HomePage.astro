@@ -56,6 +56,7 @@ const legacyHashes = {
       </a>
     </div>
     <div class="intro__media" aria-hidden="true">
+      <span class="intro__hangul" lang="ko">서울</span>
       <Image
         src={supplementsImage}
         alt=""
@@ -217,7 +218,7 @@ const legacyHashes = {
 
   .intro__text h2 {
     font-size: var(--step-4);
-    font-weight: var(--fw-regular);
+    font-weight: 350;
     max-width: 16ch;
   }
 
@@ -225,7 +226,7 @@ const legacyHashes = {
     max-width: 52ch;
     color: var(--muted);
     font-size: var(--step-1);
-    font-weight: var(--fw-regular);
+    font-weight: 300;
     line-height: 1.6;
   }
 
@@ -255,6 +256,26 @@ const legacyHashes = {
     aspect-ratio: 1;
     translate: 0 4rem;
     border: clamp(6px, 1vw, 12px) solid var(--bg);
+  }
+
+  .intro__hangul {
+    position: absolute;
+    inset: 0 auto auto -0.5rem;
+    translate: -40% 0;
+    z-index: 1;
+    writing-mode: vertical-rl;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 2rem + 4vw, 6rem);
+    line-height: 1;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    opacity: 0.55;
+  }
+
+  @media (max-width: 1023px) {
+    .intro__hangul {
+      display: none;
+    }
   }
 
   /* ── Signatures ── */
@@ -326,13 +347,14 @@ const legacyHashes = {
 
   .signature__index {
     font-family: var(--font-display);
+    font-style: italic;
     font-size: var(--step-1);
     color: var(--accent);
   }
 
   .signature h3 {
     font-size: var(--step-2);
-    font-weight: var(--fw-regular);
+    font-weight: 400;
   }
 
   .signature__text {
@@ -385,13 +407,13 @@ const legacyHashes = {
 
   .bbq__text h2 {
     font-size: var(--step-4);
-    font-weight: var(--fw-regular);
+    font-weight: 350;
   }
 
   .bbq__text > p:not(.kicker, .bbq__offer) {
     color: var(--muted);
     font-size: var(--step-1);
-    font-weight: var(--fw-regular);
+    font-weight: 300;
   }
 
   .bbq__offer {
@@ -406,7 +428,7 @@ const legacyHashes = {
   .bbq__offer strong {
     font-family: var(--font-display);
     font-size: var(--step-2);
-    font-weight: var(--fw-bold);
+    font-weight: 450;
     color: var(--accent-strong);
     font-variant-numeric: lining-nums;
   }
@@ -443,7 +465,7 @@ const legacyHashes = {
 
   .visit__text h2 {
     font-size: var(--step-4);
-    font-weight: var(--fw-regular);
+    font-weight: 350;
   }
 
   .visit__actions {
@@ -463,7 +485,7 @@ const legacyHashes = {
 
   .closing__inner h2 {
     font-size: var(--step-5);
-    font-weight: var(--fw-regular);
+    font-weight: 300;
   }
 
   .closing__actions {

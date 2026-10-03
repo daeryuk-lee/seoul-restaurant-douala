@@ -7,10 +7,10 @@ Site officiel de **Seoul Restaurant Coréen** (Rue Chococho, à côté de LGM, D
 - [Astro](https://astro.build) 7 : site statique, JavaScript chargé uniquement là où il sert
 - Film des plats sur l'accueil, piloté par le défilement (images WebP dessinées dans un `<canvas>`, chargées progressivement), avec repli sur une affiche fixe sans JavaScript, en mode « animations réduites » ou « économie de données »
 - Cartes en perspective 3D, animations au défilement en CSS natif, transitions entre pages (View Transitions)
-- Logo vectoriel tiré du vrai logo du restaurant (tracé de « Seoul » dans `scripts/brand/`, « Restaurant Coréen » recomposé en Carlito)
+- Logo vectoriel tiré du vrai logo du restaurant (tracé de « Seoul » dans `scripts/brand/`, « Restaurant Coréen » composé en Cormorant Garamond, comme les titres du site)
 - Une URL par langue (`/`, `/en/`, `/ko/`, `/zh/`) avec balises `hreflang` et plan du site multilingue
 - Images converties automatiquement en AVIF / WebP responsives
-- Police du logo : Calibri quand elle est installée, sinon Carlito (même dessin, licence OFL), auto-hébergée (aucune requête vers Google)
+- Polices Cormorant Garamond (titres) et Jost (texte), licence OFL, auto-hébergées (aucune requête vers Google)
 - Données structurées schema.org (Restaurant, Menu, fil d'Ariane)
 - Accessibilité WCAG 2.2 AA : navigation au clavier, contrastes vérifiés, réduction des animations respectée
 - En-têtes de sécurité stricts (CSP, HSTS…) dans `public/_headers` (Cloudflare Pages)
@@ -40,6 +40,7 @@ npm run preview    # prévisualiser le site généré
 npm run brand      # régénérer logo, icônes, image de partage et étalonnage des photos
 npm run brand -- --sans-photos   # logo, icônes et image de partage seulement
 npm run film -- chemin/vers/video.mp4   # découper la vidéo de l'accueil en images (nécessite ffmpeg ; changer d'abord « version » dans src/data/film.json)
+python3 scripts/film-upscale.py video.mp4 images/   # facultatif, avant « npm run film -- images/ » : images agrandies par IA (Real-ESRGAN), plus nettes
 ```
 
 ## Déploiement (Cloudflare Pages)

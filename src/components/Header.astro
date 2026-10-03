@@ -47,7 +47,7 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     </nav>
 
     <a class="site-header__brand" href={pathTo(locale, 'home')} aria-current={current('home')}>
-      <Logo alt={`${t.brand.logoAlt} — ${t.nav.home}`} width={150} eager />
+      <Logo alt={`${t.brand.logoAlt} — ${t.nav.home}`} width={124} eager />
     </a>
 
     <div class="site-header__end">
@@ -67,7 +67,7 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
 
 <div id="mobile-nav" class="mobile-nav theme-ink" popover>
   <div class="mobile-nav__top container">
-    <Logo alt={t.brand.logoAlt} width={124} eager />
+    <Logo alt={t.brand.logoAlt} width={104} eager />
     <button class="site-header__toggle" type="button" popovertarget="mobile-nav" popovertargetaction="hide" aria-label={t.nav.close}>
       <Icon name="close" />
     </button>
@@ -186,15 +186,15 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
   }
 
   .site-header__brand {
-    --logo-w: 150px;
+    --logo-w: 124px;
     display: block;
-    inline-size: 150px;
+    inline-size: 124px;
     padding-block: 0.5rem;
     transition: inline-size 0.5s var(--ease-out);
   }
 
   :global([data-scrolled]:not([data-film-active])) .site-header__brand {
-    inline-size: 132px;
+    inline-size: 110px;
   }
 
   .site-header__end {
@@ -237,13 +237,13 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     }
 
     .site-header__brand {
-      --logo-w: 124px;
-      inline-size: 124px;
+      --logo-w: 108px;
+      inline-size: 108px;
       order: -1;
     }
 
     :global([data-scrolled]:not([data-film-active])) .site-header__brand {
-      inline-size: 112px;
+      inline-size: 98px;
     }
 
     .site-header__toggle {
@@ -302,11 +302,11 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     align-items: center;
     justify-content: space-between;
     min-block-size: var(--header-h);
-    --logo-w: 112px;
+    --logo-w: 104px;
   }
 
   .mobile-nav__top :global(.logo) {
-    inline-size: 112px;
+    inline-size: 104px;
   }
 
   .mobile-nav__links {
@@ -325,7 +325,7 @@ const current = (id: PageId) => (id === page ? 'page' : undefined);
     display: block;
     padding-block: 0.4rem;
     font-family: var(--font-display);
-    font-size: clamp(1.9rem, 7.5vw, 2.7rem);
+    font-size: clamp(2.2rem, 9vw, 3.2rem);
     line-height: 1.15;
     text-decoration: none;
     color: var(--fg);

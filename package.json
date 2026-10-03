@@ -15,13 +15,13 @@
     "check": "astro check"
   },
   "dependencies": {
-    "@fontsource/carlito": "^5.3.0",
+    "@fontsource-variable/cormorant-garamond": "^5.3.0",
+    "@fontsource-variable/jost": "^5.3.0",
     "astro": "^7.3.5",
     "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@types/node": "^22.20.5",
     "opentype.js": "^2.0.0",
     "typescript": "^6.0.3"
   }

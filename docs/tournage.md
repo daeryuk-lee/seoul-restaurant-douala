@@ -20,7 +20,7 @@ Deux possibilités. La première reprend exactement le déroulé actuel du site.
 
 Neuf plans courts, **2 secondes chacun**, en avançant très lentement vers le plat (environ 20 cm en tout). Même hauteur de caméra et même table pour tous les plans. Filmer plus long ne sert à rien : le site ne garde qu'une douzaine d'images par plan, et des plans plus longs alourdiraient le film pour les visiteurs sur téléphone.
 
-Garder le plat **au centre de l'image** : sur téléphone, seule une bande verticale centrale (environ 40 % de la largeur) est affichée.
+Garder le plat **au centre de l'image** : sur téléphone, seul un carré central (un peu plus de la moitié de la largeur) est affiché.
 
 | # | Rubrique | Plat à filmer |
 |---|---|---|
@@ -47,7 +47,7 @@ Une seule prise de **10 à 15 secondes, sans coupe** : de l'entrée, avancer au 
 ### Mettre la vidéo en ligne
 
 1. Mettre à jour les plans dans `src/data/film.json` : numéros de la première et de la dernière image de chaque plan (`from`, `to`), rubrique (`chapter`, `closing` pour le dernier plan), longueur de défilement (`scroll`), centre du recadrage portrait (`focus`) et `step` (une image gardée sur `step` : viser 12 à 15 images par plan, soit `step` ≈ 4 pour 2 secondes à 30 images/s). Changer `"version"` (`"v2"`).
-2. Lancer `npm run film -- chemin/vers/video.mp4` (nécessite ffmpeg) : les images sont générées dans `public/film/v2/`. Le plus simple est de m'envoyer la vidéo : je m'occupe de ces réglages.
+2. Lancer `npm run film -- chemin/vers/video.mp4` (nécessite ffmpeg) : les images sont générées dans `public/film/<version>/`. Pour une vidéo en 1080p ou moins, les agrandir d'abord par IA, pour des images bien plus nettes : `python3 scripts/film-upscale.py chemin/vers/video.mp4 images/` puis `npm run film -- images/` (voir l'en-tête du script). Le plus simple est de m'envoyer la vidéo : je m'occupe de ces réglages.
 3. Vérifier avec `npm run build` puis `npm run preview`.
 
 ## 2. Les photos des plats

@@ -3,8 +3,9 @@
  *
  *  1. Logo vectoriel (src/assets/brand/*.svg), dérivé du vrai logo du restaurant :
  *     - « Seoul » : tracé vectoriel de la couverture du menu (scripts/brand/seoul-trace.svg) ;
- *     - « Restaurant Coréen » : Calibri, recomposé avec Carlito (même dessin et mêmes métriques,
- *       licence OFL) et converti en tracés : aucune police n'est nécessaire à l'affichage.
+ *     - « RESTAURANT CORÉEN » : recomposé en Cormorant Garamond (la police des titres du site,
+ *       licence OFL, voir scripts/fonts/), en capitales espacées, et converti en tracés : aucune
+ *       police n'est nécessaire à l'affichage.
  *  2. Icônes (favicon, Apple, PWA) tirées du « S » du logo, et image de partage Open Graph (public/).
  *  3. Étalonnage uniforme des photos : src/assets/images/_originals/** → src/assets/images/**
  *     (lumière basse et chaude, noirs profonds, vignettage, grain argentique).
@@ -21,16 +22,12 @@ import sharp from 'sharp';
 
 const COLORS = {
   ink: '#0b0a09',
-  /** Or du logo, mesuré sur la couverture du menu. */
-  gold: '#dac15c',
+  /** Or du site (--brass dans src/styles/global.css). */
+  gold: '#d2ae62',
 };
 
-/**
- * L'image de la couverture du menu a été écrasée en largeur : son texte en Calibri ne retrouve ses
- * proportions qu'élargi de 61 % (1 / 0,62). Le logo est donc élargi d'autant.
- * Mettre 1 pour reproduire l'image telle quelle.
- */
-const STRETCH = 1.612;
+/** Élargissement horizontal du mot « Seoul » : 1 = proportions de la couverture du menu. */
+const STRETCH = 1;
 
 const withPhotos = !process.argv.includes('--sans-photos');
 
@@ -130,20 +127,31 @@ const wordPath = `<path fill="${COLORS.gold}" fill-rule="evenodd" d="${toPath(tr
 // Mot-symbole seul (en-tête)
 await writeFile('src/assets/brand/logo-word.svg', svg(wordW, wordH, wordPath, 'Seoul'));
 
-// Logo complet : « Restaurant Coréen » aligné à droite sous « Seoul », comme sur le menu.
-// Mesures relevées sur la couverture (pixels de l'image recadrée) : bord droit de l'encre 508,
-// ligne de base 203,5, largeur d'encre 248.
+// Logo complet : « RESTAURANT CORÉEN » aligné à droite sous « Seoul », à la place qu'il occupe sur
+// le menu (haut des capitales à 168, bord droit à 508, en pixels de l'image recadrée).
 {
-  const woff = readFileSync('node_modules/@fontsource/carlito/files/carlito-latin-400-normal.woff');
-  const carlito = opentype.parse(woff.buffer.slice(woff.byteOffset, woff.byteOffset + woff.byteLength));
-  const TAG = 'Restaurant Coréen';
-  const ref = carlito.getPath(TAG, 0, 0, 100, { kerning: true }).getBoundingBox();
-  const size = (100 * 248 * STRETCH) / (ref.x2 - ref.x1);
-  const [right, baseline] = toLogo(508, 203.5);
-  const ink = carlito.getPath(TAG, 0, 0, size, { kerning: true }).getBoundingBox();
-  const tag = carlito.getPath(TAG, right - ink.x2, baseline, size, { kerning: true });
-  // Les lettres rondes dépassent légèrement sous la ligne de base
-  const h = Math.ceil(baseline + Math.max(0, ink.y2) + PAD);
+  const ttf = readFileSync('scripts/fonts/CormorantGaramond-SemiBold.ttf');
+  const cormorant = opentype.parse(ttf.buffer.slice(ttf.byteOffset, ttf.byteOffset + ttf.byteLength));
+  const TAG = 'RESTAURANT CORÉEN';
+  const TRACKING = 0.2; // espacement des capitales, en em
+  // Glyphes placés un à un (l'espacement n'est pas géré par opentype.js), à la taille 100
+  const place = (size, x0, y0) => {
+    const path = new opentype.Path();
+    let x = x0;
+    for (const char of TAG) {
+      const glyph = cormorant.charToGlyph(char);
+      path.extend(glyph.getPath(x, y0, size));
+      x += (glyph.advanceWidth * size) / cormorant.unitsPerEm + TRACKING * size;
+    }
+    return path;
+  };
+  const ref = place(100, 0, 0).getBoundingBox();
+  // Largeur : 62 % de celle du mot, comme un sous-titre en capitales espacées
+  const size = (100 * 0.62 * (word.x2 - word.x1) * STRETCH) / (ref.x2 - ref.x1);
+  const k = size / 100;
+  const [right, top] = toLogo(508, 168);
+  const tag = place(size, right - ref.x2 * k, top - ref.y1 * k);
+  const h = Math.ceil(top + (ref.y2 - ref.y1) * k + PAD);
   await writeFile(
     'src/assets/brand/logo.svg',
     svg(wordW, h, `${wordPath}<path fill="${COLORS.gold}" d="${compactGlyphs(tag)}"/>`, 'Seoul Restaurant Coréen'),

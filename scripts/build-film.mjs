@@ -9,12 +9,14 @@
  * reçoit le nombre d'images et la plage de chaque plan. Nécessite ffmpeg.
  *
  * Usage : npm run film -- chemin/vers/video.mp4
+ *         npm run film -- dossier/   (images déjà extraites, nommées d'après leur numéro : 0000.png,
+ *                                     0002.png… ; par exemple agrandies par scripts/film-upscale.py)
  * Changer « version » dans film.json à chaque nouvelle vidéo : les navigateurs gardent les images
  * d'une version en cache pendant un an, une version publiée ne doit donc jamais être réécrite.
  * (--remplacer : réécrire quand même la version, uniquement si elle n'a jamais été mise en ligne.)
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -47,16 +49,30 @@ const picksByShot = shots.map((shot) => {
 const needed = [...new Set(picksByShot.flat())].sort((a, b) => a - b);
 
 const tmp = mkdtempSync(join(tmpdir(), 'seoul-film-'));
-try {
-  // 1. Extraction des seules images retenues, réduites à la hauteur utile (PNG sans perte).
-  //    ffmpeg les numérote dans l'ordre : le fichier k correspond à needed[k].
+
+/** Images déjà extraites (par exemple agrandies), nommées d'après leur numéro dans la vidéo. */
+function fromFolder(folder) {
+  const files = new Map(needed.map((n) => [n, join(folder, `${String(n).padStart(4, '0')}.png`)]));
+  const missing = needed.filter((n) => !existsSync(files.get(n)));
+  if (missing.length) {
+    const list = missing.slice(0, 6).map((n) => `${String(n).padStart(4, '0')}.png`).join(', ');
+    throw new Error(`Il manque ${missing.length} image(s) dans ${folder} : ${list}…`);
+  }
+  return files;
+}
+
+/**
+ * Extraction des seules images retenues, réduites à la hauteur utile (PNG sans perte).
+ * ffmpeg les numérote dans l'ordre : le fichier k correspond à needed[k].
+ */
+function fromVideo(file) {
   const height = Math.max(landscape.height, portrait.height);
   try {
     execFileSync(
       'ffmpeg',
       [
         '-v', 'error',
-        '-i', video,
+        '-i', file,
         '-vf', `select='${needed.map((n) => `eq(n,${n})`).join('+')}',scale=w=-2:h='min(ih,${height})'`,
         '-vsync', '0',
         '-start_number', '0',
@@ -71,7 +87,12 @@ try {
   if (extracted < needed.length) {
     throw new Error(`La vidéo est trop courte : film.json demande des images jusqu'à la n° ${needed.at(-1)}, seules ${extracted} des ${needed.length} images retenues existent.`);
   }
-  const fileOf = new Map(needed.map((n, k) => [n, join(tmp, `${String(k).padStart(4, '0')}.png`)]));
+  return new Map(needed.map((n, k) => [n, join(tmp, `${String(k).padStart(4, '0')}.png`)]));
+}
+
+try {
+  // 1. Images sources : un dossier d'images déjà prêtes, ou extraction depuis la vidéo
+  const fileOf = statSync(video).isDirectory() ? fromFolder(video) : fromVideo(video);
 
   // 2. Encodage, plan par plan (les anciennes versions sont retirées : plus aucune page n'y renvoie)
   rmSync('public/film', { recursive: true, force: true });
@@ -98,7 +119,7 @@ try {
         .webp({ quality: landscape.quality, effort: 5 })
         .toFile(join(out, 'd', name));
 
-      // Portrait : fenêtre pleine hauteur, centrée sur le plat (point focal interpolé dans le plan)
+      // Téléphones : fenêtre pleine hauteur (carrée par défaut), centrée sur le plat (point focal interpolé dans le plan)
       const t = picks.length > 1 ? k / (picks.length - 1) : 0;
       const focus = shot.focus[0] + (shot.focus[1] - shot.focus[0]) * t;
       const cropW = Math.round((meta.height * portrait.width) / portrait.height);
