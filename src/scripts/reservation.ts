@@ -14,13 +14,12 @@ type Config = {
     tomorrow: string;
     closed: string;
     noSlots: string;
-    guestOne: string;
-    guestOther: string;
-    tableClassic: string;
-    tableBbq: string;
     services: Record<ServiceId, string>;
     errors: Record<'date' | 'time' | 'name' | 'phone', string>;
-    whatsapp: Record<'header' | 'date' | 'time' | 'guests' | 'table' | 'name' | 'phone' | 'message' | 'footer', string>;
+    whatsapp: Record<'header' | 'name' | 'phone' | 'guests' | 'date' | 'time' | 'service' | 'table' | 'message' | 'footer', string> & {
+      services: Record<ServiceId, string>;
+      tables: Record<'classic' | 'bbq', string>;
+    };
   };
 };
 
@@ -169,6 +168,7 @@ if (form) {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     success.hidden = true;
+    clampGuests(); // un nombre saisi au clavier sans quitter le champ n'a pas encore été borné
 
     const date = value('date');
     const time = value('time');
@@ -193,27 +193,21 @@ if (form) {
     }
 
     const service = form.querySelector<HTMLInputElement>('input[name="time"]:checked')?.dataset.service as ServiceId | undefined;
-    const guestCount = Number(value('guests'));
     const w = s.whatsapp;
     const longDate = formatDate(date, config.intl, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const message = value('message');
-    // Ponctuation propre à chaque langue (espace fine insécable avant « : » en français)
-    const sep = config.locale === 'fr' ? ' : ' : config.locale === 'zh' ? '：' : ': ';
-    const guestsLabel = config.locale === 'fr' || config.locale === 'en' ? ` ${guestCount > 1 ? s.guestOther : s.guestOne}` : s.guestOne;
 
+    // Format d'origine du message, identique dans les 4 langues : une ligne par information, précédée d'un émoji
     const text = [
       w.header,
-      '',
-      `${w.date}${sep}${longDate}`,
-      `${w.time}${sep}${formatTime(time, config.locale)}${
-        service ? (config.locale === 'zh' ? `（${s.services[service]}）` : ` (${s.services[service]})`) : ''
-      }`,
-      `${w.guests}${sep}${guestCount}${guestsLabel}`,
-      `${w.table}${sep}${value('table') === 'bbq' ? s.tableBbq : s.tableClassic}`,
-      `${w.name}${sep}${name}`,
-      `${w.phone}${sep}${phone}`,
-      ...(message ? [`${w.message}${sep}${message}`] : []),
-      '',
+      `👤 ${w.name}: ${name}`,
+      `📞 ${w.phone}: ${phone}`,
+      `👥 ${w.guests}: ${value('guests')}`,
+      `📅 ${w.date}: ${longDate}`,
+      `🕐 ${w.time}: ${time}`,
+      ...(service ? [`🍽️ ${w.service}: ${w.services[service]}`] : []),
+      `🔥 ${w.table}: ${value('table') === 'bbq' ? w.tables.bbq : w.tables.classic}`,
+      ...(message ? [`💬 ${w.message}: ${message}`] : []),
       w.footer,
     ].join('\n');
 
