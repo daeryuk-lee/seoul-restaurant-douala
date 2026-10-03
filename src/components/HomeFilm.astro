@@ -139,15 +139,25 @@ const data = {
 <style>
   /* ── Affiche fixe (état par défaut, sans JavaScript) ── */
   .film {
+    /* Hauteur d'écran : petite (barres du navigateur visibles) et grande (barres masquées),
+       avec repli sur vh pour les navigateurs anciens */
+    --sv: 1vh;
+    --lv: 1vh;
     position: relative;
     background: var(--ink);
     color: var(--on-ink);
   }
 
+  @supports (height: 1svh) {
+    .film {
+      --sv: 1svh;
+      --lv: 1lvh;
+    }
+  }
+
   .film__stage {
     position: relative;
-    block-size: 100vh;
-    block-size: 100svh;
+    block-size: calc(100 * var(--sv));
     min-block-size: 20rem;
     overflow: clip;
     background: var(--ink);
@@ -188,12 +198,11 @@ const data = {
     position: absolute;
     inset: 0 0 auto;
     z-index: 2;
-    block-size: 100vh;
-    block-size: 100svh;
+    block-size: calc(100 * var(--sv));
     min-block-size: 20rem;
     display: grid;
     align-items: end;
-    padding-block-end: clamp(3.5rem, 9svh, 6.5rem);
+    padding-block-end: clamp(3.5rem, calc(9 * var(--sv)), 6.5rem);
     padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
     pointer-events: none;
   }
@@ -258,28 +267,24 @@ const data = {
      va s'exécuter ; il la retire (data-mode="still") en mode « économie de données ». */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     .film:not([data-mode='still']) {
-      block-size: calc(var(--units, 9) * 100vh + 100vh);
-      block-size: calc(var(--units, 9) * 100svh + 100lvh);
+      block-size: calc(var(--units, 9) * 100 * var(--sv) + 100 * var(--lv));
     }
 
     .film:not([data-mode='still']) .film__stage {
       position: sticky;
       inset-block-start: 0;
-      block-size: 100vh;
-      block-size: 100lvh;
+      block-size: calc(100 * var(--lv));
     }
   }
 
   .film[data-mode='film'] {
-    block-size: calc(var(--units, 9) * 100vh + 100vh);
-    block-size: calc(var(--units, 9) * 100svh + 100lvh);
+    block-size: calc(var(--units, 9) * 100 * var(--sv) + 100 * var(--lv));
   }
 
   .film[data-mode='film'] .film__stage {
     position: sticky;
     inset-block-start: 0;
-    block-size: 100vh;
-    block-size: 100lvh;
+    block-size: calc(100 * var(--lv));
   }
 
   .film[data-mode='film'] .film__card:not(.film__card--intro) {
@@ -345,7 +350,7 @@ const data = {
   .film__skip {
     position: absolute;
     inset-inline-end: var(--gutter);
-    inset-block-end: clamp(1.25rem, 3svh, 2rem);
+    inset-block-end: clamp(1.25rem, calc(3 * var(--sv)), 2rem);
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -406,7 +411,7 @@ const data = {
 
   @media (max-width: 599px) {
     .film__frame {
-      padding-block-end: clamp(4.5rem, 12svh, 6rem);
+      padding-block-end: clamp(4.5rem, calc(12 * var(--sv)), 6rem);
     }
 
     .film__actions .btn {
