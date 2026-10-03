@@ -101,7 +101,7 @@ const fr = {
         },
         {
           title: 'Sushi & sashimi',
-          text: 'Saumon, poisson blanc et anguille, en sushi, sashimi ou maki — jusqu’au plateau SEOUL spécial de trente-deux pièces.',
+          text: 'Saumon et poisson blanc, en sushi, sashimi ou maki — jusqu’au plateau SEOUL spécial de trente-deux pièces.',
         },
         {
           title: 'Kimbap',
@@ -109,7 +109,7 @@ const fr = {
         },
         {
           title: 'Cuisine du foyer',
-          text: 'Bibimbap en marmite de pierre, ragoûts de kimchi ou de tofu, samgyetang au ginseng : les grands classiques de la table coréenne.',
+          text: 'Bibimbap chaud, ragoûts de kimchi ou de tofu, bouillon de côtes de bœuf : les grands classiques de la table coréenne.',
         },
       ],
       cta: 'Voir la carte',
@@ -365,7 +365,7 @@ const en: UI = {
         },
         {
           title: 'Sushi & sashimi',
-          text: 'Salmon, white fish and eel as sushi, sashimi or maki — up to the thirty-two-piece SEOUL special platter.',
+          text: 'Salmon and white fish as sushi, sashimi or maki — up to the thirty-two-piece SEOUL special platter.',
         },
         {
           title: 'Kimbap',
@@ -373,7 +373,7 @@ const en: UI = {
         },
         {
           title: 'Home-style cooking',
-          text: 'Hot stone bibimbap, kimchi or soft tofu stews, ginseng samgyetang: the great classics of the Korean table.',
+          text: 'Hot stone bibimbap, kimchi or soft tofu stews, beef short rib soup: the great classics of the Korean table.',
         },
       ],
       cta: 'See the menu',
@@ -611,7 +611,7 @@ const ko: UI = {
         },
         {
           title: '초밥 & 회',
-          text: '연어, 흰살생선, 장어로 만든 초밥·회·마끼 — 32개짜리 SEOUL 스페셜 모듬까지.',
+          text: '연어와 흰살생선으로 만든 초밥·회·마끼 — 32개짜리 SEOUL 스페셜 모듬까지.',
         },
         {
           title: '김밥',
@@ -619,7 +619,7 @@ const ko: UI = {
         },
         {
           title: '가정식 한식',
-          text: '돌솥비빔밥, 김치찌개와 순두부찌개, 삼계탕까지 — 한국 밥상의 대표 요리들.',
+          text: '돌솥비빔밥, 김치찌개와 순두부찌개, 왕갈비탕까지 — 한국 밥상의 대표 요리들.',
         },
       ],
       cta: '메뉴 보기',
@@ -852,7 +852,7 @@ const zh: UI = {
         },
         {
           title: '寿司与刺身',
-          text: '三文鱼、白身鱼和鳗鱼制成的寿司、刺身和卷寿司 — 还有 32 件装的 SEOUL 特选拼盘。',
+          text: '三文鱼和白身鱼制成的寿司、刺身和卷寿司 — 还有 32 件装的 SEOUL 特选拼盘。',
         },
         {
           title: '紫菜包饭',
@@ -860,7 +860,7 @@ const zh: UI = {
         },
         {
           title: '韩式家常菜',
-          text: '石锅拌饭、泡菜汤与嫩豆腐汤、人参鸡汤：韩国餐桌上的经典之味。',
+          text: '石锅拌饭、泡菜汤与嫩豆腐汤、牛排骨汤：韩国餐桌上的经典之味。',
         },
       ],
       cta: '查看菜单',

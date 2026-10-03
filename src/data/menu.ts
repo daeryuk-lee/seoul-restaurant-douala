@@ -112,7 +112,7 @@ const dishes: Record<CategoryId, Dish[]> = {
     },
     {
       name: L('Mandu', 'Mandu', '만두', '韩式饺子'),
-      desc: L('Raviolis coréens au porc ou au bœuf', 'Korean dumplings with pork or beef', '돼지고기 또는 소고기 만두', '猪肉或牛肉馅'),
+      desc: L('Raviolis coréens au porc ou au poulet', 'Korean dumplings with pork or chicken', '돼지고기 또는 닭고기 만두', '猪肉或鸡肉馅'),
       price: 5500,
     },
     { name: L('Kimbap au thon', 'Tuna kimbap', '참치김밥', '金枪鱼紫菜包饭'), price: 7500 },
@@ -122,7 +122,7 @@ const dishes: Record<CategoryId, Dish[]> = {
     { name: L('Kimbap surimi et fromage', 'Surimi and cheese kimbap', '치즈맛살김밥', '芝士蟹棒紫菜包饭'), price: 8500 },
     {
       name: L('Kimbap dragon', 'Dragon kimbap', '드래곤김밥', '龙卷紫菜包饭'),
-      desc: L('Garni de viande panée : poulet, porc ou bœuf', 'Filled with breaded chicken, pork or beef', '닭고기, 돼지고기 또는 소고기 튀김', '内卷炸鸡肉、猪肉或牛肉'),
+      desc: L('Garni de viande panée : porc ou poulet', 'Filled with breaded pork or chicken', '돼지고기 또는 닭고기 튀김', '内卷炸猪肉或鸡肉'),
       price: 8500,
       spicy: 1,
     },
@@ -176,10 +176,7 @@ const dishes: Record<CategoryId, Dish[]> = {
     },
     { name: L('Rouleau de saumon', 'Salmon roll', '연어롤', '三文鱼卷'), desc: pieces(5), price: 9500 },
     { name: L('Sushi poisson blanc', 'White fish sushi', '흰살생선 초밥', '白身鱼寿司'), desc: pieces(2), price: 4000 },
-    { name: L('Sushi anguille', 'Eel sushi', '장어 초밥', '鳗鱼寿司'), desc: pieces(2), price: 5000 },
-    { name: L('Sushi inari (tofu frit)', 'Inari sushi (fried tofu)', '유부초밥', '豆皮寿司'), desc: pieces(2), price: 5000 },
     { name: L('Sashimi poisson blanc', 'White fish sashimi', '흰살생선회', '白身鱼刺身'), desc: pieces(4), price: 5000 },
-    { name: L('Sashimi anguille', 'Eel sashimi', '장어회', '鳗鱼刺身'), desc: pieces(4), price: 9500 },
     {
       name: L('Salade de poisson cru', 'Spicy raw fish salad', '회무침', '凉拌生鱼片'),
       desc: L(
@@ -213,22 +210,6 @@ const dishes: Record<CategoryId, Dish[]> = {
       price: 9000,
     },
     {
-      name: L('Poisson grillé', 'Grilled fish', '생선구이', '烤鱼'),
-      desc: L('Grillé sur plaque chauffante', 'Cooked on a hot iron plate', '철판에 구운 생선', '铁板烤制'),
-      price: 7000,
-    },
-    {
-      name: L('Poitrine de porc au piment', 'Spicy grilled pork belly', '고추장 삼겹살 구이', '辣酱烤五花肉'),
-      desc: L(
-        'Marinée à la pâte de piment coréenne (gochujang), puis grillée',
-        'Marinated in Korean chilli paste (gochujang), then grilled',
-        '고추장 양념에 재워 구운 삼겹살',
-        '韩式辣酱腌制后烤制',
-      ),
-      price: 8500,
-      spicy: 2,
-    },
-    {
       name: L('Bulgogi', 'Bulgogi', '불고기', '韩式烤牛肉'),
       desc: L('Bœuf mariné sauté aux légumes', 'Marinated beef stir-fried with vegetables', '양념 소고기와 야채 볶음', '腌牛肉炒蔬菜'),
       price: 7500,
@@ -257,7 +238,7 @@ const dishes: Record<CategoryId, Dish[]> = {
       spicy: 3,
     },
     {
-      name: L('Crevettes sauce chili', 'Chilli prawns', '칠리새우', '干烧虾仁'),
+      name: L('Crevettes au chili', 'Chilli prawns', '칠리새우', '干烧虾仁'),
       desc: L('Crevettes sautées à la sauce chili', 'Prawns sautéed in chilli sauce', '칠리소스에 볶은 새우', '辣椒酱炒虾仁'),
       price: 9500,
     },
@@ -272,32 +253,28 @@ const dishes: Record<CategoryId, Dish[]> = {
       price: 9500,
       spicy: 2,
     },
+    {
+      name: L('Poulet sauté au fromage', 'Cheese dakgalbi', '치즈닭갈비', '芝士铁板鸡'),
+      price: 11500,
+      spicy: 1,
+      isNew: true,
+    },
   ],
 
   friture: [
     {
-      name: L('Dakgangjeong (poulet croustillant sauce soja)', 'Dakgangjeong (crispy soy-glazed chicken)', '닭강정', '酱香炸鸡块'),
+      name: L('Beignets de poulet', 'Chicken fritters', '닭강정', '炸鸡块'),
+      desc: L('Poulet croustillant sauce soja', 'Crispy chicken with soy sauce glaze', '바삭한 간장 치킨', '酱香脆皮鸡'),
       price: 7500,
     },
     {
-      name: L('Fried chicken', 'Fried chicken', '순살치킨', '无骨炸鸡'),
-      desc: L('Poulet frit sans os', 'Boneless fried chicken', '뼈 없는 치킨', '无骨炸鸡'),
-      price: 12500,
-    },
-    {
-      name: L('Poulet frit sauce épicée', 'Yangnyeom fried chicken', '양념치킨', '韩式甜辣炸鸡'),
+      name: L('Poulet frit épicé', 'Spicy fried chicken', '양념치킨', '韩式甜辣炸鸡'),
       desc: L('Poulet frit nappé d’une sauce sucrée et épicée', 'Fried chicken coated in a sweet and spicy sauce', '달콤매콤한 양념을 입힌 치킨', '裹甜辣酱的炸鸡'),
       price: 7500,
     },
-    { name: L('Côtes de porc frites', 'Fried pork ribs', '돼지갈비 튀김', '炸猪排骨'), price: 8000 },
     {
       name: L('Donkkasseu', 'Donkatsu (pork cutlet)', '돈까스', '韩式炸猪排'),
       desc: L('Escalope de porc panée', 'Breaded pork cutlet', '돼지고기 커틀릿', '裹粉炸猪排'),
-      price: 8000,
-    },
-    {
-      name: L('Beef Gasseu', 'Beef cutlet', '비프까스', '炸牛排'),
-      desc: L('Escalope de bœuf panée', 'Breaded beef cutlet', '소고기 커틀릿', '裹粉炸牛排'),
       price: 8000,
     },
     {
@@ -311,13 +288,8 @@ const dishes: Record<CategoryId, Dish[]> = {
       price: 8000,
     },
     {
-      name: L('Modum Gasseu A', 'Mixed cutlet A', '모듬까스 A', '炸排拼盘 A'),
+      name: L('Modum Gasseu', 'Mixed cutlet', '모듬까스', '炸排拼盘'),
       desc: L('Porc, poulet et poisson', 'Pork, chicken and fish', '돈까스, 치킨까스, 생선까스', '猪排、鸡排、鱼排'),
-      price: 10000,
-    },
-    {
-      name: L('Modum Gasseu B', 'Mixed cutlet B', '모듬까스 B', '炸排拼盘 B'),
-      desc: L('Bœuf, poulet et poisson', 'Beef, chicken and fish', '비프까스, 치킨까스, 생선까스', '牛排、鸡排、鱼排'),
       price: 10000,
     },
     {
@@ -327,7 +299,7 @@ const dishes: Record<CategoryId, Dish[]> = {
       isNew: true,
     },
     {
-      name: L('Ailes de poulet kanpung', 'Kanpung chicken wings', '깐풍윙', '干烹鸡翅'),
+      name: L('Kanpung Wings', 'Kanpung Wings', '깐풍윙', '干烹鸡翅'),
       desc: L(
         'Six ailes de poulet frites, sauce sucrée légèrement pimentée',
         'Six fried chicken wings in a sweet, mildly spicy sauce',
@@ -348,7 +320,7 @@ const dishes: Record<CategoryId, Dish[]> = {
       spicy: 1,
     },
     {
-      name: L('Bibimbap en marmite de pierre', 'Stone pot bibimbap', '돌솥비빔밥', '石锅拌饭'),
+      name: L('Bibimbap chaud', 'Hot stone bibimbap', '돌솥비빔밥', '石锅拌饭'),
       desc: L('Servi grésillant dans une marmite en pierre chaude', 'Served sizzling in a hot stone pot', '뜨거운 돌솥에 담아내는 비빔밥', '盛于滚烫石锅中'),
       price: 8000,
       spicy: 1,
@@ -371,19 +343,25 @@ const dishes: Record<CategoryId, Dish[]> = {
       spicy: 2,
     },
     {
-      name: L('Ragoût de tofu soyeux', 'Soft tofu stew', '순두부찌개', '嫩豆腐汤'),
+      name: L('Ragoût de tofu mou', 'Soft tofu stew', '순두부찌개', '嫩豆腐汤'),
       desc: L('Relevé, au bœuf, au porc ou au calamar', 'Spicy, with beef, pork or squid', '소고기, 돼지고기 또는 오징어', '辣味，可选牛肉、猪肉或鱿鱼'),
       price: 8000,
       spicy: 3,
     },
     {
-      name: L('Bulgogi en marmite', 'Bulgogi hot pot', '뚝배기불고기', '砂锅烤牛肉'),
+      name: L('Bulgogi chaud', 'Bulgogi hot pot', '뚝배기불고기', '砂锅烤牛肉'),
       desc: L('Servi frémissant dans une marmite en terre', 'Served bubbling in an earthenware pot', '뚝배기에 끓여 내는 불고기', '盛于砂锅中'),
       price: 8500,
     },
     {
       name: L('Ragoût de saucisses aux vermicelles', 'Army stew with glass noodles', '당면 부대찌개', '粉条部队锅'),
       price: 8000,
+      spicy: 2,
+    },
+    {
+      name: L('Ragoût de saucisses', 'Army stew', '부대찌개', '部队锅'),
+      desc: L('Saucisses et légumes', 'Sausages and vegetables', '소시지와 야채', '香肠与蔬菜'),
+      price: 17000,
       spicy: 2,
     },
     {
@@ -394,7 +372,7 @@ const dishes: Record<CategoryId, Dish[]> = {
     },
     {
       name: L('Soupe de mandu', 'Dumpling soup', '만두국', '饺子汤'),
-      desc: L('Raviolis au bœuf en bouillon', 'Beef dumplings in broth', '소고기 만두국', '牛肉饺子汤'),
+      desc: L('Raviolis au poulet en bouillon', 'Chicken dumplings in broth', '닭고기 만두국', '鸡肉饺子汤'),
       price: 6500,
     },
     {
@@ -404,21 +382,21 @@ const dishes: Record<CategoryId, Dish[]> = {
       spicy: 3,
     },
     {
+      name: L('Tteokbokki au fromage', 'Cheese tteokbokki', '치즈떡볶이', '芝士炒年糕'),
+      price: 11500,
+      spicy: 1,
+      isNew: true,
+    },
+    {
       name: L('Tofu kimchi', 'Tofu with kimchi', '두부김치', '豆腐泡菜'),
       desc: L('Tofu, kimchi et poitrine de porc sautée', 'Tofu with kimchi and stir-fried pork belly', '두부와 삼겹살 김치볶음', '豆腐配泡菜炒五花肉'),
       price: 12000,
       spicy: 2,
     },
-    {
-      name: L('Ragoût de saucisses', 'Army stew', '부대찌개', '部队锅'),
-      desc: L('Saucisses et légumes', 'Sausages and vegetables', '소시지와 야채', '香肠与蔬菜'),
-      price: 17000,
-      spicy: 2,
-    },
     { name: L('Galette de kimchi', 'Kimchi pancake', '김치전', '泡菜饼'), price: 7500, spicy: 1 },
     {
-      name: L('Galette aux fruits de mer et oignon vert', 'Seafood and green onion pancake', '해물파전', '海鲜葱饼'),
-      desc: L('Calamar et crevettes', 'Squid and prawns', '오징어, 새우', '鱿鱼和虾'),
+      name: L('Galette d’oignons verts', 'Green onion pancake', '해물파전', '葱饼'),
+      desc: L('Aux fruits de mer : calamar et crevettes', 'With seafood: squid and prawns', '해물: 오징어, 새우', '配海鲜：鱿鱼和虾'),
       price: 7500,
     },
     {
@@ -433,22 +411,16 @@ const dishes: Record<CategoryId, Dish[]> = {
       price: 11500,
       isNew: true,
     },
-    {
-      name: L('Samgyetang', 'Samgyetang', '삼계탕', '参鸡汤'),
-      desc: L('Poulet entier en bouillon au ginseng', 'Whole chicken in ginseng broth', '인삼을 넣어 끓인 통닭', '人参整鸡汤'),
-      price: 15000,
-      isNew: true,
-    },
   ],
 
   pate_nouilles: [
     {
-      name: L('Nouilles de sarrasin froides', 'Cold buckwheat noodles', '메밀국수', '荞麦冷面'),
-      desc: L('Servies dans un bouillon froid', 'Served in a cold broth', '시원한 육수의 메밀국수', '配冰凉汤汁'),
+      name: L('Memilguksu (nouilles soba)', 'Memilguksu (soba noodles)', '메밀국수', '荞麦冷面'),
+      desc: L('Nouilles de sarrasin froides, servies en bouillon', 'Cold buckwheat noodles served in broth', '시원한 육수의 메밀국수', '冰凉汤汁荞麦面'),
       price: 8000,
     },
     {
-      name: L('Naengmyeon', 'Naengmyeon', '냉면', '韩式冷面'),
+      name: L('Naengmyeon (soupe froide de nouilles)', 'Naengmyeon (cold noodle soup)', '냉면', '韩式冷面'),
       desc: L(
         'Nouilles de sarrasin dans un bouillon froid et acidulé',
         'Buckwheat noodles in a cold, tangy broth',
@@ -458,7 +430,7 @@ const dishes: Record<CategoryId, Dish[]> = {
       price: 8000,
     },
     {
-      name: L('Naengmyeon pimenté', 'Spicy naengmyeon', '비빔냉면', '韩式拌冷面'),
+      name: L('Bibimnaengmyeon (nouilles piquantes)', 'Bibim naengmyeon (spicy noodles)', '비빔냉면', '韩式拌冷面'),
       desc: L(
         'Nouilles de sarrasin froides, sauce acidulée et pimentée',
         'Cold buckwheat noodles in a tangy, spicy sauce',
@@ -510,7 +482,7 @@ const dishes: Record<CategoryId, Dish[]> = {
       price: 9000,
     },
     {
-      name: L('Jjamppong pimenté', 'Spicy jjamppong', '짬뽕', '韩式海鲜辣汤面'),
+      name: L('Jjamppong piquant', 'Spicy jjamppong', '짬뽕', '韩式海鲜辣汤面'),
       desc: L(
         'Soupe de fruits de mer pimentée, avec nouilles, vermicelles ou riz',
         'Spicy seafood soup with noodles, glass noodles or rice',
@@ -521,7 +493,7 @@ const dishes: Record<CategoryId, Dish[]> = {
       spicy: 4,
     },
     {
-      name: L('Udon tempura', 'Prawn tempura udon', '튀김우동', '炸虾乌冬面'),
+      name: L('Twiguim Udon', 'Twiguim udon', '튀김우동', '炸虾乌冬面'),
       desc: L('Soupe de nouilles udon aux beignets de crevettes', 'Udon noodle soup with prawn tempura', '새우튀김을 올린 우동', '乌冬汤面配炸虾'),
       price: 9000,
     },
@@ -537,10 +509,10 @@ const dishes: Record<CategoryId, Dish[]> = {
     { name: L('Tofu', 'Tofu', '두부', '豆腐'), price: 2000, veg: true },
     { name: L('Nouilles nature', 'Plain noodles', '소면사리', '面条'), price: 1500, veg: true },
     { name: L('Frites', 'Fries', '감자튀김', '薯条'), price: 1500, veg: true },
-    { name: L('Accompagnement (banchan)', 'Side dish (banchan)', '반찬', '韩式小菜'), price: 1500, perPlate: true },
+    { name: L('Petit mets (banchan)', 'Side dish (banchan)', '반찬', '韩式小菜'), price: 1500, perPlate: true },
     { name: L('Kimchi', 'Kimchi', '김치', '韩式泡菜'), price: 2500, perPlate: true, spicy: 2 },
     {
-      name: L('Œufs à la vapeur', 'Steamed eggs', '계란찜', '韩式蒸蛋'),
+      name: L('Omelette soufflée', 'Fluffy steamed eggs', '계란찜', '韩式蒸蛋'),
       desc: L('Œufs cuits à la vapeur, à la coréenne', 'Korean-style steamed eggs', '부드러운 계란찜', '韩式鸡蛋羹'),
       price: 4000,
     },
@@ -551,7 +523,7 @@ const dishes: Record<CategoryId, Dish[]> = {
       spicy: 3,
     },
     {
-      name: L('Riz cantonais aux fruits de mer', 'Seafood fried rice', '해물야채볶음밥', '海鲜蔬菜炒饭'),
+      name: L('Riz cantonais calamars & crevettes', 'Squid & prawn fried rice', '해물야채볶음밥', '鱿鱼虾仁蔬菜炒饭'),
       desc: L('Crevettes, calamar et légumes', 'Prawns, squid and vegetables', '새우, 오징어, 야채', '虾仁、鱿鱼、蔬菜'),
       price: 5500,
     },
@@ -626,10 +598,10 @@ const meta: Omit<Category, 'dishes'>[] = [
     id: 'grillade_saute',
     title: { fr: 'Grillades & sautés', en: 'Grills & stir-fries', ko: '구이 & 볶음', zh: '烧烤与炒菜' },
     intro: {
-      fr: 'Viandes, poissons et fruits de mer grillés ou sautés, doux ou relevés.',
-      en: 'Grilled or stir-fried meat, fish and seafood, mild or spicy.',
-      ko: '고기, 생선, 해산물 구이와 볶음 — 순한 맛부터 매운맛까지.',
-      zh: '烤制或翻炒的肉类、鱼类与海鲜，口味有清淡也有香辣。',
+      fr: 'Viandes et fruits de mer grillés ou sautés, doux ou relevés.',
+      en: 'Grilled or stir-fried meat and seafood, mild or spicy.',
+      ko: '고기와 해산물 구이와 볶음 — 순한 맛부터 매운맛까지.',
+      zh: '烤制或翻炒的肉类与海鲜，口味有清淡也有香辣。',
     },
     image: grillade,
     imageAlt: {
@@ -701,7 +673,7 @@ const meta: Omit<Category, 'dishes'>[] = [
     },
     image: supplements,
     imageAlt: {
-      fr: 'Tofu, nouilles, œufs à la vapeur, ramyeon, riz sauté et banchan',
+      fr: 'Tofu, nouilles, omelette soufflée, ramyeon, riz sauté et banchan',
       en: 'Tofu, noodles, steamed eggs, ramyeon, fried rice and side dishes',
       ko: '두부, 소면, 계란찜, 라면, 볶음밥과 반찬',
       zh: '豆腐、面条、蒸蛋、拉面、炒饭和小菜',
